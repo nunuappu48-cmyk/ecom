@@ -1,8 +1,55 @@
 import { supabase } from '../lib/supabase'
 import { uploadProductImageToFirebase, deleteProductImageFromFirebase } from '../lib/firebase'
+import { HOUSEHOLD_PRODUCTS } from '../data/householdProducts'
+
+const LOCAL_PRODUCTS_KEY = 'ecomcenter_custom_products'
+
+const getLocalCustomProducts = () => {
+  try {
+    const raw = localStorage.getItem(LOCAL_PRODUCTS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+const saveLocalCustomProduct = (newProduct) => {
+  try {
+    const items = getLocalCustomProducts()
+    const idx = items.findIndex(p => p.id === newProduct.id)
+    if (idx > -1) {
+      items[idx] = newProduct
+    } else {
+      items.unshift(newProduct)
+    }
+    localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items))
+  } catch (err) {
+    console.warn('Failed to save product locally:', err)
+  }
+}
+
+const removeLocalCustomProduct = (id) => {
+  try {
+    const items = getLocalCustomProducts().filter(p => p.id !== id)
+    localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items))
+  } catch (err) {
+    console.warn('Failed to remove product locally:', err)
+  }
+}
+
+const getAllHouseholdProducts = () => {
+  const custom = getLocalCustomProducts()
+  // Merge custom over default by id or slug
+  const map = new Map()
+  HOUSEHOLD_PRODUCTS.forEach(p => map.set(p.id, p))
+  custom.forEach(p => map.set(p.id, p))
+  return Array.from(map.values())
+}
 
 export const productService = {
   async getProducts({ category, search, sortBy, isFeatured } = {}) {
+    let prods = []
+
     try {
       let query = supabase.from('products').select('*')
 
@@ -29,15 +76,56 @@ export const productService = {
       }
 
       const { data, error } = await query
-      if (error) {
-        console.error('Supabase getProducts error:', error)
-        throw error
+      if (!error && data && data.length > 0) {
+        // If data contains non-honey household items, use it
+        const isOldHoneyData = data.every(p => 
+          p.category?.toLowerCase().includes('honey') || 
+          p.name?.toLowerCase().includes('honey') || 
+          p.category === 'Wildflower' ||
+          p.category === 'Monofloral'
+        )
+        if (!isOldHoneyData) {
+          prods = data
+        }
       }
-      return data || []
     } catch (err) {
-      console.error('Failed to fetch products from Supabase:', err.message)
-      return []
+      console.warn('Supabase query issue, using local catalog:', err.message)
     }
+
+    // Fallback to rich Household Products catalog if Supabase returned old honey or is empty
+    if (!prods || prods.length === 0) {
+      let list = getAllHouseholdProducts()
+
+      if (isFeatured) {
+        list = list.filter(p => p.is_featured)
+      }
+
+      if (category && category !== 'All') {
+        list = list.filter(p => p.category?.toLowerCase().includes(category.toLowerCase()))
+      }
+
+      if (search) {
+        const q = search.toLowerCase()
+        list = list.filter(p => 
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q) ||
+          p.ingredients?.toLowerCase().includes(q)
+        )
+      }
+
+      if (sortBy === 'price-asc') {
+        list.sort((a, b) => Number(a.price) - Number(b.price))
+      } else if (sortBy === 'price-desc') {
+        list.sort((a, b) => Number(b.price) - Number(a.price))
+      } else if (sortBy === 'rating') {
+        list.sort((a, b) => Number(b.rating) - Number(a.rating))
+      }
+
+      prods = list
+    }
+
+    return prods
   },
 
   async getProductBySlug(slug) {
@@ -48,37 +136,47 @@ export const productService = {
         .eq('slug', slug)
         .single()
 
-      if (error) throw error
-      return data
-    } catch (err) {
-      console.error(`Failed to fetch product by slug "${slug}" from Supabase:`, err.message)
-      return null
-    }
+      if (!error && data && !data.name?.toLowerCase().includes('honey')) {
+        return data
+      }
+    } catch (_) {}
+
+    // Fallback search in household catalog
+    const all = getAllHouseholdProducts()
+    return all.find(p => p.slug === slug || p.id === slug) || null
   },
 
   async createProduct(productData) {
     const slug = productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const id = productData.id || `h-prod-${Date.now()}`
     const newProduct = {
       ...productData,
+      id,
       slug,
       rating: productData.rating || 5.0,
+      reviews_count: productData.reviews_count || 1,
       is_featured: Boolean(productData.is_featured),
       is_active: productData.is_active !== undefined ? productData.is_active : true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
 
-    const { data, error } = await supabase
-      .from('products')
-      .insert([newProduct])
-      .select()
-      .single()
+    // Save locally
+    saveLocalCustomProduct(newProduct)
 
-    if (error) {
-      console.error('Supabase createProduct error:', error)
-      throw error
+    // Try Supabase insert
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([newProduct])
+        .select()
+        .single()
+      if (!error && data) return data
+    } catch (err) {
+      console.warn('Supabase createProduct fallback to local:', err.message)
     }
-    return data
+
+    return newProduct
   },
 
   async updateProduct(id, updates) {
@@ -87,42 +185,46 @@ export const productService = {
       updated_at: new Date().toISOString()
     }
 
-    const { data, error } = await supabase
-      .from('products')
-      .update(payload)
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Supabase updateProduct error:', error)
-      throw error
+    // Update locally
+    const custom = getLocalCustomProducts()
+    const found = custom.find(p => p.id === id) || HOUSEHOLD_PRODUCTS.find(p => p.id === id)
+    if (found) {
+      saveLocalCustomProduct({ ...found, ...payload })
     }
-    return data
+
+    // Try Supabase update
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single()
+      if (!error && data) return data
+    } catch (err) {
+      console.warn('Supabase updateProduct fallback to local:', err.message)
+    }
+
+    return { ...found, ...payload }
   },
 
   async deleteProduct(id) {
-    // 1. Fetch to get image URL for deletion from Firebase
-    const { data: prod } = await supabase
-      .from('products')
-      .select('image_url')
-      .eq('id', id)
-      .single()
+    removeLocalCustomProduct(id)
 
-    if (prod?.image_url) {
-      await deleteProductImageFromFirebase(prod.image_url)
-    }
+    try {
+      const { data: prod } = await supabase
+        .from('products')
+        .select('image_url')
+        .eq('id', id)
+        .single()
 
-    // 2. Delete product from Supabase
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id)
+      if (prod?.image_url) {
+        await deleteProductImageFromFirebase(prod.image_url)
+      }
 
-    if (error) {
-      console.error('Supabase deleteProduct error:', error)
-      throw error
-    }
+      await supabase.from('products').delete().eq('id', id)
+    } catch (_) {}
+
     return true
   },
 

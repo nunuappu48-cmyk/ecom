@@ -90,20 +90,20 @@ export const AdminProducts = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
             Product Management
           </h1>
-          <p className="text-xs sm:text-sm text-amberBrown-600">
-            Manage your honey varieties, pricing, stock levels, and store visibility.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Manage your store catalog, pricing, stock levels, and store visibility.
           </p>
         </div>
 
         <Link
           to="/admin/products/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-gold-gradient hover:opacity-95 text-amberBrown-950 font-black text-xs rounded-xl shadow-honey-sm transition-transform active:scale-95"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-transform active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Honey Product</span>
+          <span>Add Product</span>
         </Link>
       </div>
 
@@ -287,11 +287,11 @@ export const AdminProducts = () => {
             <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto text-xl">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="font-serif font-bold text-lg text-amberBrown-950">
-              Delete Honey Product?
+            <h3 className="font-sans font-bold text-lg text-slate-900">
+              Delete Product?
             </h3>
-            <p className="text-xs text-amberBrown-600">
-              Are you sure you want to permanently delete this product from your honey store catalog?
+            <p className="text-xs text-slate-500">
+              Are you sure you want to permanently delete this product from your catalog?
             </p>
             <div className="flex gap-2 pt-2">
               <button

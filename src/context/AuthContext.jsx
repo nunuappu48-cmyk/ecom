@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
-const LOCAL_USER_KEY = 'fellas_honey_user_session'
+const LOCAL_USER_KEY = 'ecomcenter_user_session'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
           }
         } else {
           // Check local stored session
-          const saved = localStorage.getItem(LOCAL_USER_KEY)
+          const saved = localStorage.getItem(LOCAL_USER_KEY) || localStorage.getItem('fellas_honey_user_session')
           if (saved && mounted) {
             const parsed = JSON.parse(saved)
             setUser(parsed.user)
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
           full_name: activeUser?.user_metadata?.full_name || 'Customer',
           email: activeUser?.email,
           phone: activeUser?.user_metadata?.phone || '',
-          role: activeUser?.user_metadata?.role || (activeUser?.email === 'admin@fellashoney.com' ? 'admin' : 'customer')
+          role: activeUser?.user_metadata?.role || (activeUser?.email === 'admin@fellashoney.com' || activeUser?.email === 'admin@ecomcenter.com' ? 'admin' : 'customer')
         }
         setProfile(fallbackProf)
         try {
@@ -258,7 +258,7 @@ export const AuthProvider = ({ children }) => {
             full_name: cleanEmail.split('@')[0],
             email: cleanEmail,
             phone: '+91 85898 66422',
-            role: cleanEmail === 'admin@fellashoney.com' ? 'admin' : 'customer',
+            role: (cleanEmail === 'admin@fellashoney.com' || cleanEmail === 'admin@ecomcenter.com') ? 'admin' : 'customer',
             created_at: new Date().toISOString()
           }
           setUser(mockUser)
@@ -279,7 +279,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Local Mock sign in (only when Supabase is completely unconfigured)
-    const isAdminEmail = cleanEmail === 'admin@fellashoney.com'
+    const isAdminEmail = cleanEmail === 'admin@fellashoney.com' || cleanEmail === 'admin@ecomcenter.com'
     if (isAdminEmail) {
       if (password !== 'admin1235789') {
         throw new Error('Invalid email or password.')
@@ -290,7 +290,7 @@ export const AuthProvider = ({ children }) => {
     const mockUser = { id: mockUserId, email: cleanEmail }
     const mockProfile = {
       id: mockUserId,
-      full_name: isAdminEmail ? 'Master Beekeeper (Admin)' : 'Honey Enthusiast',
+      full_name: isAdminEmail ? 'EcomCenter Admin' : 'Valued Customer',
       email: cleanEmail,
       phone: '+91 85898 66422',
       role: isAdminEmail ? 'admin' : 'customer',
@@ -308,11 +308,11 @@ export const AuthProvider = ({ children }) => {
     const mockUserId = isAdm ? 'admin-user-id' : 'demo-user-id'
     const mockUser = {
       id: mockUserId,
-      email: isAdm ? 'admin@fellashoney.com' : 'asim@fellashoney.com'
+      email: isAdm ? 'admin@ecomcenter.com' : 'customer@ecomcenter.com'
     }
     const mockProfile = {
       id: mockUserId,
-      full_name: isAdm ? 'Admin Beekeeper' : 'Asim J (Customer)',
+      full_name: isAdm ? 'EcomCenter Admin' : 'Demo Customer',
       email: mockUser.email,
       phone: '+1 (555) 349-2910',
       role: isAdm ? 'admin' : 'customer',

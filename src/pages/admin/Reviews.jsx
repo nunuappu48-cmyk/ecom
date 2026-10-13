@@ -54,8 +54,8 @@ export const AdminReviews = () => {
         <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
           Reviews & Newsletter Subscribers
         </h1>
-        <p className="text-xs sm:text-sm text-amberBrown-600">
-          Moderate verified honey buyer testimonials and manage newsletter growth.
+        <p className="text-xs sm:text-sm text-slate-500">
+          Moderate verified customer buyer testimonials and manage newsletter growth.
         </p>
       </div>
 

@@ -221,15 +221,15 @@ export const Account = () => {
           ) : orders.length === 0 ? (
             <div className="text-center py-10 space-y-3">
               <div className="text-4xl">📦</div>
-              <h3 className="font-bold text-sm text-amberBrown-900">No orders placed yet</h3>
-              <p className="text-xs text-amberBrown-600 max-w-xs mx-auto">
-                Once you order raw honey from Fellas Honey, your receipts and tracking updates will appear right here.
+              <h3 className="font-bold text-sm text-slate-900">No orders placed yet</h3>
+              <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                Once you place an order on EcomCenter, your receipts and live tracking updates will appear right here.
               </p>
               <Link
                 to="/products"
-                className="inline-block px-5 py-2.5 bg-amber-gold-gradient text-amberBrown-950 font-bold text-xs rounded-xl shadow-honey-sm"
+                className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs"
               >
-                Browse Honey Catalog
+                Browse Product Catalog
               </Link>
             </div>
           ) : (

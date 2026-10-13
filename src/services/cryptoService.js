@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const LOCAL_CRYPTO_KEY = 'fellas_honey_crypto_settings'
+const LOCAL_CRYPTO_KEY = 'ecomcenter_crypto_settings'
 
 export const DEFAULT_CRYPTO_SETTINGS = [
   {

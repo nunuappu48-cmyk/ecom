@@ -2,19 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search, SlidersHorizontal, ArrowUpDown, X, Filter, Sparkles, Check, ChevronDown } from 'lucide-react'
 import { ProductGrid } from '../components/ProductGrid'
+import { HOUSEHOLD_CATEGORIES as CATEGORIES } from '../data/householdProducts'
 import { productService } from '../services/productService'
 import { formatCurrency } from '../utils/formatters'
-
-const CATEGORIES = [
-  'All',
-  'Wildflower',
-  'Raw Honey',
-  'Monofloral',
-  'Rare Reserve',
-  'Medical Grade',
-  'Infused Honey',
-  'Honeydew'
-]
 
 export const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -97,38 +87,38 @@ export const Products = () => {
     <div className="py-4 sm:py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-honey-100 via-cream-100 to-honey-200/80 rounded-3xl p-5 sm:p-8 border border-honey-300 shadow-soft">
+      <div className="bg-gradient-to-r from-blue-50 via-white to-indigo-50 rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs">
         <div className="max-w-2xl space-y-1.5 sm:space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 text-amberBrown-900 text-[11px] sm:text-xs font-bold shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-honey-600" />
-            <span>Pure & Raw Harvest</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-blue-700 text-[11px] sm:text-xs font-bold border border-slate-200 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>Curated Online Catalog</span>
           </div>
-          <h1 className="font-serif font-black text-xl sm:text-4xl text-amberBrown-950">
-            Artisanal Honey Collection
+          <h1 className="font-sans font-black text-2xl sm:text-4xl text-slate-900 tracking-tight">
+            Household & Home Essentials
           </h1>
-          <p className="text-xs sm:text-sm text-amberBrown-700 leading-relaxed">
-            Explore single-origin raw honeys and botanical infusions straight from our apiaries.
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Explore premium kitchenware, home decor, smart appliances, storage, and cleaning essentials.
           </p>
         </div>
       </div>
 
       {/* Filter and Search Controls Bar */}
-      <div className="flex items-center gap-2 sm:gap-3 bg-white p-2.5 sm:p-4 rounded-2xl border border-honey-200/80 shadow-soft">
+      <div className="flex items-center gap-2 sm:gap-3 bg-white p-2.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
         
         {/* Search input */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Search wildflower, sidr, manuka..."
-            className="w-full pl-9 sm:pl-10 pr-8 py-2 sm:py-2.5 bg-cream-50 text-xs sm:text-sm text-amberBrown-900 placeholder:text-amberBrown-400 rounded-xl border border-honey-200 focus:outline-none focus:ring-2 focus:ring-honey-500"
+            placeholder="Search kitchenware, decor, storage, appliances, bedding..."
+            className="w-full pl-9 sm:pl-10 pr-8 py-2 sm:py-2.5 bg-slate-50 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {searchTerm && (
             <button
               onClick={() => handleSearchChange({ target: { value: '' } })}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amberBrown-400 hover:text-amberBrown-700"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
             >
               <X className="w-4 h-4" />
             </button>
@@ -140,25 +130,25 @@ export const Products = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="appearance-none bg-cream-50 text-xs sm:text-sm font-semibold text-amberBrown-900 py-2.5 pl-3 pr-8 rounded-xl border border-honey-200 focus:outline-none focus:ring-2 focus:ring-honey-500 cursor-pointer"
+            className="appearance-none bg-slate-50 text-xs sm:text-sm font-semibold text-slate-800 py-2.5 pl-3 pr-8 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
             <option value="newest">Sort by: Newest</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="rating">Sort by: Popularity</option>
           </select>
-          <ArrowUpDown className="w-3.5 h-3.5 text-amberBrown-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Filter Button (Opens Bottom Sheet on Mobile) */}
         <button
           onClick={() => setIsMobileFilterOpen(true)}
-          className="p-2 sm:p-2.5 bg-cream-50 hover:bg-honey-100 text-amberBrown-800 rounded-xl border border-honey-200 flex items-center gap-1.5 text-xs font-bold transition-colors relative"
+          className="p-2 sm:p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl border border-slate-200 flex items-center gap-1.5 text-xs font-bold transition-colors relative"
         >
-          <SlidersHorizontal className="w-4 h-4 text-honey-700" />
+          <SlidersHorizontal className="w-4 h-4 text-blue-600" />
           <span className="hidden sm:inline">Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="w-4 h-4 bg-honey-500 text-amberBrown-950 rounded-full text-[10px] font-black flex items-center justify-center">
+            <span className="w-4 h-4 bg-blue-600 text-white rounded-full text-[10px] font-black flex items-center justify-center">
               {activeFiltersCount}
             </span>
           )}
@@ -166,7 +156,7 @@ export const Products = () => {
 
       </div>
 
-      {/* Category Pills (Horizontal scrolling on mobile with touch momentum) */}
+      {/* Category Pills (Horizontal scrolling on mobile) */}
       <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
         {CATEGORIES.map(cat => (
           <button
@@ -174,8 +164,8 @@ export const Products = () => {
             onClick={() => handleCategorySelect(cat)}
             className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ${
               selectedCategory === cat
-                ? 'bg-amber-gold-gradient text-amberBrown-950 shadow-honey-sm'
-                : 'bg-white text-amberBrown-800 border border-honey-200 hover:bg-honey-50'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             {cat}
@@ -184,12 +174,12 @@ export const Products = () => {
       </div>
 
       {/* Products Counter Row */}
-      <div className="flex items-center justify-between text-xs text-amberBrown-500 font-medium pt-1">
-        <span>{products.length} {products.length === 1 ? 'honey variety' : 'honey varieties'} found</span>
+      <div className="flex items-center justify-between text-xs text-slate-500 font-medium pt-1">
+        <span>{products.length} {products.length === 1 ? 'product' : 'products'} found</span>
         {activeFiltersCount > 0 && (
           <button
             onClick={resetFilters}
-            className="text-honey-700 font-bold hover:underline"
+            className="text-blue-600 font-bold hover:underline"
           >
             Reset filters ({activeFiltersCount})
           </button>
@@ -205,20 +195,20 @@ export const Products = () => {
           {/* Backdrop */}
           <div
             onClick={() => setIsMobileFilterOpen(false)}
-            className="absolute inset-0 bg-amberBrown-950/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
           />
 
-          <div className="fixed inset-x-0 bottom-0 max-h-[85vh] bg-white rounded-t-3xl border-t border-honey-300 shadow-2xl p-5 sm:p-6 overflow-y-auto space-y-5 animate-slideUp pb-safe">
+          <div className="fixed inset-x-0 bottom-0 max-h-[85vh] bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl p-5 sm:p-6 overflow-y-auto space-y-5 animate-slideUp pb-safe">
             
             {/* Sheet Handle & Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-honey-100">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-honey-600" />
-                <h3 className="font-serif font-bold text-lg text-amberBrown-950">Filters & Sorting</h3>
+                <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+                <h3 className="font-sans font-bold text-lg text-slate-900">Filters & Sorting</h3>
               </div>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="p-1 text-amberBrown-400 hover:text-amberBrown-900"
+                className="p-1 text-slate-400 hover:text-slate-900"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -226,7 +216,7 @@ export const Products = () => {
 
             {/* Sort Options on Mobile */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase text-amberBrown-900 tracking-wider">
+              <label className="block text-xs font-bold uppercase text-slate-900 tracking-wider">
                 Sort Products By
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -242,24 +232,24 @@ export const Products = () => {
                     onClick={() => setSortBy(opt.id)}
                     className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left flex items-center justify-between ${
                       sortBy === opt.id
-                        ? 'bg-honey-100 border-honey-400 text-amberBrown-950 font-black'
-                        : 'bg-cream-50 border-honey-200 text-amberBrown-700'
+                        ? 'bg-blue-50 border-blue-500 text-blue-900 font-black'
+                        : 'bg-slate-50 border-slate-200 text-slate-700'
                     }`}
                   >
                     <span>{opt.label}</span>
-                    {sortBy === opt.id && <Check className="w-3.5 h-3.5 text-honey-700" />}
+                    {sortBy === opt.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Price Filter Slider */}
-            <div className="space-y-2 pt-2 border-t border-honey-100">
+            <div className="space-y-2 pt-2 border-t border-slate-100">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase text-amberBrown-900 tracking-wider">
+                <label className="text-xs font-bold uppercase text-slate-900 tracking-wider">
                   Maximum Price
                 </label>
-                <span className="font-serif font-black text-honey-700 text-sm">{formatCurrency(maxPrice)}</span>
+                <span className="font-sans font-black text-blue-600 text-sm">{formatCurrency(maxPrice)}</span>
               </div>
               <input
                 type="range"
@@ -268,9 +258,9 @@ export const Products = () => {
                 step="50"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-honey-600 cursor-pointer h-2 bg-cream-200 rounded-lg"
+                className="w-full accent-blue-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
               />
-              <div className="flex justify-between text-[11px] font-semibold text-amberBrown-400">
+              <div className="flex justify-between text-[11px] font-semibold text-slate-400">
                 <span>₹100</span>
                 <span>₹1,500</span>
                 <span>₹3,000</span>
@@ -278,8 +268,8 @@ export const Products = () => {
             </div>
 
             {/* Category selection */}
-            <div className="space-y-2 pt-2 border-t border-honey-100">
-              <label className="block text-xs font-bold uppercase text-amberBrown-900 tracking-wider">
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <label className="block text-xs font-bold uppercase text-slate-900 tracking-wider">
                 Category
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -290,8 +280,8 @@ export const Products = () => {
                     onClick={() => handleCategorySelect(cat)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       selectedCategory === cat
-                        ? 'bg-amber-gold-gradient text-amberBrown-950'
-                        : 'bg-cream-50 text-amberBrown-700 border border-honey-200'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-50 text-slate-700 border border-slate-200'
                     }`}
                   >
                     {cat}
@@ -301,18 +291,18 @@ export const Products = () => {
             </div>
 
             {/* Actions */}
-            <div className="pt-3 flex gap-2 border-t border-honey-100">
+            <div className="pt-3 flex gap-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={resetFilters}
-                className="flex-1 py-3 bg-cream-50 hover:bg-honey-100 text-amberBrown-800 font-bold text-xs rounded-xl border border-honey-200"
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl"
               >
                 Reset All
               </button>
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="flex-1 py-3 bg-amber-gold-gradient text-amberBrown-950 font-black text-xs rounded-xl shadow-honey-sm"
+                className="flex-1 py-3 bg-blue-600 text-white font-black text-xs rounded-xl shadow-xs"
               >
                 Apply Filters ({products.length})
               </button>

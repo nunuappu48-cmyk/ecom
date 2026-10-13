@@ -50,9 +50,9 @@ export const Register = () => {
         phone: formData.phone
       })
       if (res?.isFallback) {
-        addToast('Account created & logged in! Welcome to Fellas Honey 🍯', 'success')
+        addToast('Account created & logged in! Welcome to EcomCenter 🛍️', 'success')
       } else {
-        addToast('Account created successfully! Welcome to Fellas Honey 🍯', 'success')
+        addToast('Account created successfully! Welcome to EcomCenter 🛍️', 'success')
       }
       navigate('/account')
     } catch (err) {
@@ -64,19 +64,17 @@ export const Register = () => {
 
   return (
     <div className="py-8 sm:py-16 max-w-md mx-auto px-4 relative">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-honey-300 shadow-soft-lg space-y-6 relative overflow-hidden">
-        
-        <HoneycombPattern className="text-honey-400 opacity-5" />
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6 relative overflow-hidden">
 
         <div className="text-center space-y-2 relative z-10">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-1.5 mx-auto shadow-honey-sm border border-honey-200 overflow-hidden">
-            <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
+          <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center p-2.5 mx-auto shadow-md overflow-hidden">
+            <img src="/logo.svg" alt="EcomCenter" className="w-full h-full object-contain filter brightness-0 invert" />
           </div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
             Create an Account
           </h1>
-          <p className="text-xs text-amberBrown-600">
-            Join the Fellas Honey family for special reserve drops and order tracking.
+          <p className="text-xs text-slate-500">
+            Join EcomCenter for exclusive member deals, express checkout, and order tracking.
           </p>
         </div>
 

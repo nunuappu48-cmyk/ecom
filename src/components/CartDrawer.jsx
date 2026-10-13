@@ -52,21 +52,21 @@ export const CartDrawer = () => {
         <div className="w-screen max-w-md bg-cream-100 shadow-2xl flex flex-col justify-between border-l border-honey-300">
           
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-honey-200/80 bg-white flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-honey-100 text-honey-700">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-serif font-bold text-lg text-amberBrown-900 leading-tight">Your Honey Basket</h2>
-                <p className="text-xs text-amberBrown-500 font-medium">
+                <h2 className="font-sans font-bold text-lg text-slate-900 leading-tight">Your Shopping Cart</h2>
+                <p className="text-xs text-slate-500 font-medium">
                   {items.length} {items.length === 1 ? 'item' : 'items'} selected
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-xl text-amberBrown-500 hover:bg-honey-100 hover:text-amberBrown-900 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition-colors"
               aria-label="Close cart"
             >
               <X className="w-5 h-5" />
@@ -74,36 +74,36 @@ export const CartDrawer = () => {
           </div>
 
           {/* Free Shipping Progress Bar */}
-          <div className="bg-honey-100/70 p-3 sm:px-5 border-b border-honey-200 text-xs">
+          <div className="bg-blue-50/70 p-3 sm:px-5 border-b border-blue-100 text-xs">
             {amountNeededForFreeShipping > 0 ? (
-              <p className="text-amberBrown-800 font-semibold mb-1.5 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-honey-600" />
-                Add <span className="font-bold text-honey-700">{formatCurrency(amountNeededForFreeShipping)}</span> more for <span className="text-natureGreen-700 font-bold uppercase">FREE Shipping</span>!
+              <p className="text-slate-700 font-semibold mb-1.5 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                Add <span className="font-bold text-blue-600">{formatCurrency(amountNeededForFreeShipping)}</span> more for <span className="text-emerald-700 font-bold uppercase">FREE Shipping</span>!
               </p>
             ) : (
-              <p className="text-natureGreen-700 font-bold mb-1.5 flex items-center gap-1.5">
-                🎉 Congratulations! You have unlocked FREE Express Delivery!
+              <p className="text-emerald-700 font-bold mb-1.5 flex items-center gap-1.5">
+                🎉 Congratulations! You unlocked FREE Express Delivery!
               </p>
             )}
-            <div className="w-full bg-honey-200 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
               <div
-                className="bg-amber-gold-gradient h-full rounded-full transition-all duration-500 ease-out"
+                className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${freeShippingProgress}%` }}
               />
             </div>
           </div>
 
           {/* Cart Item List */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 divide-y divide-honey-200/50">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 divide-y divide-slate-100">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-                <div className="w-20 h-20 rounded-3xl bg-honey-100 flex items-center justify-center text-4xl shadow-inner">
-                  🍯
+                <div className="w-20 h-20 rounded-3xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
+                  <ShoppingBag className="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-amberBrown-900">Your basket is empty</h3>
-                  <p className="text-xs text-amberBrown-600 mt-1 max-w-xs">
-                    Discover our rare wildflower, raw organic mountain, and infused honeys straight from our hives.
+                  <h3 className="font-bold text-lg text-slate-900">Your cart is empty</h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-xs">
+                    Explore top-rated items, trending deals, and verified essentials.
                   </p>
                 </div>
                 <button
@@ -111,9 +111,9 @@ export const CartDrawer = () => {
                     setIsCartOpen(false)
                     navigate('/products')
                   }}
-                  className="px-6 py-2.5 bg-honey-500 hover:bg-honey-600 text-amberBrown-950 font-bold text-xs rounded-xl shadow-honey-sm transition-transform active:scale-95"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-transform active:scale-95"
                 >
-                  Explore Honey Catalog
+                  Explore Catalog
                 </button>
               </div>
             ) : (
@@ -214,12 +214,12 @@ export const CartDrawer = () => {
                     type="text"
                     value={inputCoupon}
                     onChange={(e) => setInputCoupon(e.target.value)}
-                    placeholder="Promo code (try HONEY10)"
-                    className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-honey-300 bg-cream-50 focus:outline-none focus:ring-1 focus:ring-honey-500 uppercase"
+                    placeholder="Promo code (try ECOMCENTER10)"
+                    className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 uppercase text-slate-900"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 bg-honey-200 hover:bg-honey-300 text-amberBrown-900 font-bold text-xs rounded-xl transition-colors"
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors"
                   >
                     Apply
                   </button>
@@ -227,26 +227,26 @@ export const CartDrawer = () => {
               )}
 
               {/* Price Breakdown */}
-              <div className="space-y-1.5 text-xs text-amberBrown-700">
+              <div className="space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-amberBrown-900">{formatCurrency(subtotal)}</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-natureGreen-700 font-semibold">
+                  <div className="flex justify-between text-emerald-600 font-semibold">
                     <span>Discount</span>
                     <span>-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Estimated Delivery</span>
-                  <span className="font-semibold text-amberBrown-900">
-                    {deliveryFee === 0 ? <span className="text-natureGreen-700 font-bold uppercase">Free</span> : formatCurrency(deliveryFee)}
+                  <span className="font-semibold text-slate-900">
+                    {deliveryFee === 0 ? <span className="text-emerald-600 font-bold uppercase">Free</span> : formatCurrency(deliveryFee)}
                   </span>
                 </div>
-                <div className="pt-2 border-t border-honey-200 flex justify-between text-sm font-black text-amberBrown-950">
+                <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
                   <span>Total</span>
-                  <span className="text-honey-700 text-base">{formatCurrency(total)}</span>
+                  <span className="text-blue-600 text-base">{formatCurrency(total)}</span>
                 </div>
               </div>
 
@@ -254,14 +254,14 @@ export const CartDrawer = () => {
               <div className="space-y-2 pt-1">
                 <button
                   onClick={handleCheckoutClick}
-                  className="w-full py-3 px-4 bg-amber-gold-gradient hover:opacity-95 text-amberBrown-950 font-black text-sm rounded-2xl shadow-honey-md flex items-center justify-center gap-2 transition-all transform active:scale-98"
+                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-98"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full py-2 text-center text-xs font-bold text-amberBrown-600 hover:text-amberBrown-900 transition-colors"
+                  className="w-full py-2 text-center text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"
                 >
                   Continue Shopping
                 </button>

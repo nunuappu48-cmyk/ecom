@@ -19,7 +19,7 @@ export const OrderSuccess = () => {
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#F4B400', '#B7791F', '#6B8E23', '#FFD54F', '#3E2723']
+        colors: ['#2563EB', '#1D4ED8', '#10B981', '#60A5FA', '#0F172A']
       })
     } catch (e) {
       console.warn('Confetti effect ignored:', e)
@@ -42,7 +42,7 @@ export const OrderSuccess = () => {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <LoadingSpinner text="Generating your golden honey receipt..." />
+        <LoadingSpinner text="Generating your order confirmation receipt..." />
       </div>
     )
   }
@@ -51,29 +51,29 @@ export const OrderSuccess = () => {
     <div className="py-8 sm:py-16 max-w-3xl mx-auto px-4 sm:px-6 space-y-8">
       
       {/* Celebration Card */}
-      <div className="relative bg-amber-gold-gradient rounded-[2.5rem] p-6 sm:p-10 shadow-honey-lg text-center overflow-hidden border border-honey-300">
-        <HoneycombPattern className="text-amberBrown-900 opacity-10" />
+      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 rounded-[2.5rem] p-6 sm:p-10 shadow-xl text-center overflow-hidden border border-blue-400">
+        <div className="absolute inset-0 bg-subtle-grid opacity-15 pointer-events-none" />
 
         <div className="relative z-10 space-y-3">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mx-auto shadow-honey-md">
-            🍯
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl flex items-center justify-center text-blue-600 mx-auto shadow-md">
+            <PackageCheck className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/90 text-natureGreen-800 text-xs font-bold shadow-2xs">
-            <CheckCircle2 className="w-4 h-4 text-natureGreen-700" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/90 text-emerald-800 text-xs font-bold shadow-2xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>Order Placed Successfully</span>
           </div>
 
-          <h1 className="font-serif font-black text-2xl sm:text-4xl text-amberBrown-950">
-            Thank You for Your Order! 🍯
+          <h1 className="font-sans font-black text-2xl sm:text-4xl text-white">
+            Thank You for Your Order!
           </h1>
 
-          <p className="text-xs sm:text-sm text-amberBrown-900/90 font-medium max-w-md mx-auto leading-relaxed">
-            We are preparing your fresh artisanal honey straight from the apiary hives. A receipt confirmation has been sent to your email.
+          <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-md mx-auto leading-relaxed">
+            We have received your order and our fulfillment team is preparing it for rapid doorstep delivery. A confirmation has been sent to your email.
           </p>
 
           <div className="pt-2 inline-block">
-            <span className="px-4 py-2 bg-amberBrown-900 text-honey-200 font-mono font-bold text-xs sm:text-sm rounded-xl tracking-wider">
+            <span className="px-4 py-2 bg-slate-900 text-white font-mono font-bold text-xs sm:text-sm rounded-xl tracking-wider">
               Order #{order?.order_number || orderNumber}
             </span>
           </div>

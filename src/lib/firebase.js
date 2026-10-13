@@ -46,7 +46,7 @@ export const uploadProductImageToFirebase = async (file, customName = null) => {
         contentType: file.type,
         customMetadata: {
           uploadedAt: new Date().toISOString(),
-          brand: 'Fellas Honey'
+          brand: 'EcomCenter'
         }
       }
 

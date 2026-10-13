@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="bagShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1D4ED8" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Shield/Square -->
+  <rect x="16" y="16" width="168" height="168" rx="44" fill="url(#bgGrad)" filter="url(#softGlow)" />
+  
+  <!-- Subtle Inner Border Highlight -->
+  <rect x="17" y="17" width="166" height="166" rx="43" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" />
+
+  <!-- Shopping Bag Handle -->
+  <path d="M 72 74 C 72 48 128 48 128 74" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" />
+
+  <!-- Shopping Bag Body -->
+  <path d="M 52 74 L 148 74 L 140 148 C 139 155 133 160 125 160 L 75 160 C 67 160 61 155 60 148 Z" fill="#FFFFFF" />
+
+  <!-- Center Stylized 'E' + Cart Accent -->
+  <path d="M 78 98 L 122 98 C 124 98 125 99 125 101 L 125 106 C 125 108 124 109 122 109 L 88 109 L 88 116 L 116 116 C 118 116 119 117 119 119 L 119 123 C 119 125 118 126 116 126 L 88 126 L 88 135 L 122 135 C 124 135 125 136 125 138 L 125 143 C 125 145 124 146 122 146 L 78 146 C 75 146 73 144 73 141 L 73 103 C 73 100 75 98 78 98 Z" fill="url(#bgGrad)" />
+
+  <!-- Glowing Sparkle / Deal Badge -->
+  <circle cx="146" cy="62" r="14" fill="url(#accentGrad)" stroke="#FFFFFF" stroke-width="3" />
+  <path d="M 146 54 L 148 60 L 154 62 L 148 64 L 146 70 L 144 64 L 138 62 L 144 60 Z" fill="#FFFFFF" />
+</svg>

@@ -1,6 +1,6 @@
-# 🍯 Fellas Honey — Premium Mobile-First E-Commerce Web App
+# 🛍️ EcomCenter — Modern High-Conversion E-Commerce Web App
 
-A modern, mobile-first e-commerce web application built for selling 100% pure, raw, artisanal natural honey products. Built with **React**, **Vite**, **Tailwind CSS**, **Lucide Icons**, **Supabase** (PostgreSQL, Auth, Storage, RLS), and configured for **Vercel** deployment.
+A modern, fast, mobile-first e-commerce web application built for online retail. Built with **React**, **Vite**, **Tailwind CSS**, **Lucide Icons**, **Supabase** (PostgreSQL, Auth, Storage, RLS), and configured for **Vercel** deployment.
 
 ---
 

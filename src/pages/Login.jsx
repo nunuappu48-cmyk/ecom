@@ -26,16 +26,17 @@ export const Login = () => {
         res?.isDummyAdmin ||
         res?.profile?.role === 'admin' ||
         res?.user?.user_metadata?.role === 'admin' ||
-        email.trim().toLowerCase() === 'admin@fellashoney.com'
+        email.trim().toLowerCase() === 'admin@fellashoney.com' ||
+        email.trim().toLowerCase() === 'admin@ecomcenter.com'
 
       if (isAdminUser) {
-        addToast('Signed in as Master Beekeeper (Admin)! 🍯', 'success')
+        addToast('Signed in as EcomCenter Administrator! 🚀', 'success')
         navigate('/admin')
       } else if (res?.unconfirmedFallback) {
-        addToast('Signed in successfully! 🍯', 'success')
+        addToast('Signed in successfully! 🛍️', 'success')
         navigate(redirectPath)
       } else {
-        addToast('Welcome back to Fellas Honey! 🍯', 'success')
+        addToast('Welcome back to EcomCenter! 🛍️', 'success')
         navigate(redirectPath)
       }
     } catch (err) {
@@ -52,20 +53,18 @@ export const Login = () => {
 
   return (
     <div className="py-8 sm:py-16 max-w-md mx-auto px-4 relative">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-honey-300 shadow-soft-lg space-y-6 relative overflow-hidden">
-        
-        <HoneycombPattern className="text-honey-400 opacity-5" />
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6 relative overflow-hidden">
 
         {/* Header */}
         <div className="text-center space-y-2 relative z-10">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-1.5 mx-auto shadow-honey-sm border border-honey-200 overflow-hidden">
-            <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
+          <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center p-2.5 mx-auto shadow-md overflow-hidden">
+            <img src="/logo.svg" alt="EcomCenter" className="w-full h-full object-contain filter brightness-0 invert" />
           </div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-xs text-amberBrown-600">
-            Sign in to track orders, manage your profile and view your honey rewards.
+          <p className="text-xs text-slate-500">
+            Sign in to track orders, manage your profile, and access exclusive member deals.
           </p>
         </div>
 

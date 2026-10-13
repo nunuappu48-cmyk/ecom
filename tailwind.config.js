@@ -7,72 +7,91 @@ export default {
   theme: {
     extend: {
       colors: {
-        honey: {
-          50: '#FFFDF5', // Cream
-          100: '#FFF9E6',
-          200: '#FFF4CC', // Light Honey
-          300: '#FFE580',
-          400: '#FFD54F',
-          500: '#F4B400', // Honey Gold
-          600: '#D99B00',
-          700: '#B7791F', // Dark Honey
-          800: '#8C5A14',
-          900: '#5C3A0A',
+        // Modern Primary E-Commerce Palette (Vibrant Electric Blue / Indigo)
+        primary: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#2563EB', // Primary Brand Blue
+          600: '#1D4ED8',
+          700: '#1E40AF',
+          800: '#1E3A8A',
+          900: '#172554',
+          950: '#0B132B',
         },
+        // Aliased honey tokens to modern e-commerce blue so existing components seamlessly inherit the new theme
+        honey: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#2563EB',
+          600: '#1D4ED8',
+          700: '#1E40AF',
+          800: '#1E3A8A',
+          900: '#172554',
+          950: '#0B132B',
+        },
+        // Clean neutral background layers
         cream: {
           50: '#FFFFFF',
-          100: '#FFFDF5',
-          200: '#FFF9EC',
-          300: '#FFF2D6',
+          100: '#F8FAFC', // Slate 50
+          200: '#F1F5F9', // Slate 100
+          300: '#E2E8F0', // Slate 200
         },
+        // Modern dark slate text / card neutrals (replacing rustic brown)
         amberBrown: {
-          50: '#FBF7F5',
-          100: '#F3EAE6',
-          300: '#D7BCB2',
-          600: '#794D3F',
-          800: '#4E3027',
-          900: '#3E2723', // Dark Brown
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A', // Deep modern Slate 900
+          950: '#020617', // Midnight Slate 950
         },
+        // Trust and Deal highlights (Fresh Emerald)
         natureGreen: {
-          50: '#F4F7EE',
-          100: '#E6EED8',
-          500: '#6B8E23', // Natural Green / Olive
-          600: '#5A781D',
-          700: '#476016',
+          50: '#ECFDF5',
+          100: '#D1FAE5',
+          200: '#A7F3D0',
+          500: '#10B981',
+          600: '#059669',
+          700: '#047857',
         }
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'], // Standardized to sleek sans-serif
         accent: ['"Outfit"', 'sans-serif'],
       },
       boxShadow: {
-        'honey-sm': '0 2px 8px -1px rgba(244, 180, 0, 0.15)',
-        'honey-md': '0 8px 24px -4px rgba(244, 180, 0, 0.2)',
-        'honey-lg': '0 16px 36px -6px rgba(183, 121, 31, 0.25)',
-        'soft': '0 4px 20px -2px rgba(62, 39, 35, 0.06)',
-        'soft-lg': '0 12px 32px -4px rgba(62, 39, 35, 0.1)',
+        'honey-sm': '0 2px 10px -2px rgba(37, 99, 235, 0.12)',
+        'honey-md': '0 8px 24px -4px rgba(37, 99, 235, 0.16)',
+        'honey-lg': '0 16px 36px -6px rgba(29, 78, 216, 0.22)',
+        'soft': '0 4px 20px -2px rgba(15, 23, 42, 0.05)',
+        'soft-lg': '0 12px 32px -4px rgba(15, 23, 42, 0.08)',
       },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
+          '50%': { transform: 'translateY(-6px)' },
         },
-        drip: {
-          '0%': { transform: 'scaleY(1)' },
-          '50%': { transform: 'scaleY(1.15)' },
-          '100%': { transform: 'scaleY(1)' },
-        },
-        wiggle: {
-          '0%, 100%': { transform: 'rotate(-3deg)' },
-          '50%': { transform: 'rotate(3deg)' },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         }
       },
       animation: {
         'float-slow': 'float 4s ease-in-out infinite',
         'float-delayed': 'float 5s ease-in-out 1.5s infinite',
-        'drip': 'drip 2s ease-in-out infinite',
-        'wiggle': 'wiggle 1s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s infinite linear',
       }
     },
   },

@@ -1,19 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
-    <linearGradient id="honeyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFD54F" />
-      <stop offset="50%" stop-color="#F4B400" />
-      <stop offset="100%" stop-color="#B7791F" />
+    <linearGradient id="favBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="favAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
     </linearGradient>
   </defs>
-  <!-- Jar Lid -->
-  <path d="M 28 22 Q 50 18 72 22 L 75 28 L 25 28 Z" fill="#3E2723" />
-  <rect x="33" y="16" width="34" height="6" rx="3" fill="#6B8E23" />
-  <!-- Jar Body -->
-  <path d="M 26 30 C 20 45 22 75 32 84 C 40 90 60 90 68 84 C 78 75 80 45 74 30 Z" fill="url(#honeyGrad)" />
-  <!-- Honey dripping / shine -->
-  <path d="M 38 30 C 38 48 44 54 48 54 C 52 54 52 42 58 42 C 64 42 64 50 68 46 C 70 44 72 38 72 30 Z" fill="#FFE580" opacity="0.6" />
-  <!-- Label Badge -->
-  <circle cx="50" cy="62" r="14" fill="#FFFDF5" />
-  <text x="50" y="67" font-size="14" font-weight="bold" text-anchor="middle" fill="#B7791F">🍯</text>
+  <rect x="6" y="6" width="88" height="88" rx="24" fill="url(#favBg)" />
+  <!-- Handle -->
+  <path d="M 36 38 C 36 24 64 24 64 38" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" />
+  <!-- Bag -->
+  <path d="M 24 38 L 76 38 L 71 80 C 70 84 66 87 62 87 L 38 87 C 34 87 30 84 29 80 Z" fill="#FFFFFF" />
+  <!-- Stylized E inside bag -->
+  <path d="M 40 50 L 60 50 M 40 60 L 56 60 M 40 70 L 60 70 M 40 50 L 40 70" stroke="#1D4ED8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Green Sparkle -->
+  <circle cx="76" cy="30" r="8" fill="url(#favAccent)" stroke="#FFFFFF" stroke-width="2" />
 </svg>

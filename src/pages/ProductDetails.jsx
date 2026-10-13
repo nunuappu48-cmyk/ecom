@@ -255,24 +255,28 @@ export const ProductDetails = () => {
             {product.description}
           </p>
 
-          {/* Weight Selector */}
+          {/* Weight / Size Selector */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-amberBrown-900">
-              Select Jar Weight
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-800">
+              Select Option / Quantity
             </label>
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {['250g', '500g', '1kg'].map((w) => (
+              {[
+                { label: product.weight || 'Single Unit', mult: 1.0 },
+                { label: 'Bundle (Set of 2)', mult: 1.85 },
+                { label: 'Deluxe Pack', mult: 2.7 }
+              ].map((opt) => (
                 <button
-                  key={w}
+                  key={opt.label}
                   type="button"
-                  onClick={() => setSelectedWeight(w)}
-                  className={`py-2.5 px-3 rounded-2xl border text-xs sm:text-sm font-bold transition-all active:scale-95 ${
-                    selectedWeight === w
-                      ? 'bg-amber-gold-gradient border-honey-500 text-amberBrown-950 shadow-honey-sm font-black'
-                      : 'bg-white border-honey-200 text-amberBrown-800 hover:bg-honey-50'
+                  onClick={() => setSelectedWeight(opt.label)}
+                  className={`py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition-all active:scale-95 ${
+                    selectedWeight === opt.label || (!selectedWeight && opt.mult === 1.0)
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs font-bold'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  {w}
+                  {opt.label}
                 </button>
               ))}
             </div>
@@ -362,22 +366,22 @@ export const ProductDetails = () => {
 
       </div>
 
-      {/* Tabs / Accordions: Ingredients, Benefits, Product Info, Storage */}
-      <div className="bg-white rounded-3xl border border-honey-200/80 p-5 sm:p-8 shadow-soft">
-        <div className="flex border-b border-honey-200 gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-none">
+      {/* Tabs / Accordions: Materials, Features, Care, Warranty */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-xs">
+        <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
-            { id: 'benefits', label: 'Health Benefits' },
-            { id: 'ingredients', label: 'Pure Ingredients' },
-            { id: 'storage', label: 'Storage & Usage' },
-            { id: 'origin', label: 'Harvest Origin' }
+            { id: 'benefits', label: 'Key Features' },
+            { id: 'ingredients', label: 'Materials & Specs' },
+            { id: 'storage', label: 'Care & Maintenance' },
+            { id: 'origin', label: 'Warranty & Delivery' }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-3.5 sm:px-4 py-2 sm:py-2.5 font-bold text-xs sm:text-sm whitespace-nowrap rounded-xl transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-honey-100 text-amberBrown-950 font-extrabold shadow-2xs'
-                  : 'text-amberBrown-600 hover:text-amberBrown-900 hover:bg-honey-50'
+                  ? 'bg-blue-50 text-blue-700 font-extrabold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               {tab.label}
@@ -385,51 +389,48 @@ export const ProductDetails = () => {
           ))}
         </div>
 
-        <div className="pt-5 text-xs sm:text-sm text-amberBrown-700 leading-relaxed">
+        <div className="pt-5 text-xs sm:text-sm text-slate-700 leading-relaxed">
           {activeTab === 'benefits' && (
             <div className="space-y-3">
-              <h3 className="font-serif font-bold text-base text-amberBrown-950">
-                Natural Bioactive Wellness
+              <h3 className="font-sans font-bold text-base text-slate-900">
+                Key Product Highlights
               </h3>
-              <p>{product.benefits || 'Packed with live bioactive enzymes, pure propolis, and antioxidants that support immune health and natural energy.'}</p>
-              <ul className="list-disc list-inside space-y-1 text-amberBrown-600">
-                <li>Natural energy source with sustained glycemic absorption</li>
-                <li>Rich in polyphenols that fight free radicals and cellular stress</li>
-                <li>Soothes sore throats and maintains natural gut microbiome harmony</li>
+              <p>{product.benefits || 'Engineered with premium durable materials for everyday comfort, longevity, and effortless convenience.'}</p>
+              <ul className="list-disc list-inside space-y-1 text-slate-600">
+                <li>Designed for long-lasting daily household performance</li>
+                <li>Ergonomic construction with precision craftsmanship</li>
+                <li>Easy to sanitize, clean, and maintain over years of use</li>
               </ul>
             </div>
           )}
 
           {activeTab === 'ingredients' && (
             <div className="space-y-3">
-              <h3 className="font-serif font-bold text-base text-amberBrown-950">
-                Single-Ingredient Purity
+              <h3 className="font-sans font-bold text-base text-slate-900">
+                Materials & Technical Specifications
               </h3>
-              <p className="font-medium text-amberBrown-900 bg-honey-50 p-4 rounded-2xl border border-honey-200">
-                {product.ingredients || '100% Pure Raw Honey. No additives, no sugar syrup, no artificial flavors.'}
+              <p className="font-medium text-slate-800 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                {product.ingredients || 'High-grade non-toxic certified household materials. BPA-free, eco-friendly components.'}
               </p>
             </div>
           )}
 
           {activeTab === 'storage' && (
             <div className="space-y-3">
-              <h3 className="font-serif font-bold text-base text-amberBrown-950">
-                Storage & Crystallization
+              <h3 className="font-sans font-bold text-base text-slate-900">
+                Care & Maintenance Instructions
               </h3>
-              <p>{product.storage_instructions || 'Store in a cool, dry place away from direct sunlight. Do not refrigerate.'}</p>
-              <p className="text-xs text-amberBrown-500 italic">
-                Note: Natural crystallization is the hallmark of truly raw honey. To re-liquefy, gently place the jar in a warm water bath below 40°C.
-              </p>
+              <p>{product.storage_instructions || 'Clean with mild detergent or damp cloth. Keep in a dry, ventilated area away from excessive direct heat.'}</p>
             </div>
           )}
 
           {activeTab === 'origin' && (
             <div className="space-y-3">
-              <h3 className="font-serif font-bold text-base text-amberBrown-950">
-                Ethical Beekeeper Harvest
+              <h3 className="font-sans font-bold text-base text-slate-900">
+                Warranty & Quality Assurance
               </h3>
               <p>
-                Harvested from certified wild apiaries situated in secluded alpine reserves and protected valleys. Zero exposure to synthetic pesticides or industrial agricultural runoff.
+                Every item is rigorously quality-checked and comes with our standard 1-year manufacturer guarantee against defects. 30-day money-back satisfaction guarantee included.
               </p>
             </div>
           )}
@@ -443,13 +444,13 @@ export const ProductDetails = () => {
             <h2 className="font-serif font-black text-xl sm:text-3xl text-amberBrown-950">
               Customer Reviews ({reviews.length})
             </h2>
-            <p className="text-xs text-amberBrown-600 mt-0.5">
-              Verified feedback from honey lovers who tasted this batch.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Verified feedback from customers who purchased this item.
             </p>
           </div>
           <button
             onClick={() => setShowReviewModal(true)}
-            className="px-4 py-2.5 bg-honey-500 hover:bg-honey-600 text-amberBrown-950 font-bold text-xs rounded-xl shadow-honey-sm transition-transform active:scale-95 flex items-center justify-center gap-2"
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center justify-center gap-2"
           >
             <MessageSquare className="w-4 h-4" />
             <span>Write a Review</span>
@@ -457,8 +458,8 @@ export const ProductDetails = () => {
         </div>
 
         {reviews.length === 0 ? (
-          <div className="p-6 bg-white rounded-3xl border border-honey-200 text-center text-xs text-amberBrown-600">
-            Be the first to leave a review for {product.name}! 🍯
+          <div className="p-6 bg-white rounded-3xl border border-slate-200 text-center text-xs text-slate-500">
+            Be the first to leave a review for {product.name}!
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
@@ -471,15 +472,15 @@ export const ProductDetails = () => {
 
       {/* Review Modal */}
       {showReviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-amberBrown-950/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full border border-honey-300 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-serif font-bold text-lg text-amberBrown-950">
+              <h3 className="font-sans font-bold text-lg text-slate-900">
                 Review {product.name}
               </h3>
               <button
                 onClick={() => setShowReviewModal(false)}
-                className="p-1 text-amberBrown-400 hover:text-amberBrown-800"
+                className="p-1 text-slate-400 hover:text-slate-800"
               >
                 ✕
               </button>
@@ -487,7 +488,7 @@ export const ProductDetails = () => {
 
             <form onSubmit={handleReviewSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-amberBrown-900 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1">
                   Your Rating
                 </label>
                 <div className="flex items-center gap-2">
@@ -501,8 +502,8 @@ export const ProductDetails = () => {
                       <Star
                         className={`w-6 h-6 ${
                           star <= reviewRating
-                            ? 'fill-honey-500 text-honey-500'
-                            : 'fill-gray-200 text-gray-200'
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'fill-slate-200 text-slate-200'
                         }`}
                       />
                     </button>
@@ -511,8 +512,8 @@ export const ProductDetails = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-amberBrown-900 mb-1">
-                  Your Experience & Flavor Notes
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Your Experience & Feedback
                 </label>
                 <textarea
                   rows={4}

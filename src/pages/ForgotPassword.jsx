@@ -36,8 +36,8 @@ export const ForgotPassword = () => {
           <h1 className="font-serif font-black text-2xl text-amberBrown-950">
             Reset Password
           </h1>
-          <p className="text-xs text-amberBrown-600">
-            Enter the email address associated with your Fellas Honey account.
+          <p className="text-xs text-slate-500">
+            Enter the email address associated with your EcomCenter account.
           </p>
         </div>
 

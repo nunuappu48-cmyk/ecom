@@ -5,16 +5,9 @@ import { productService } from '../../services/productService'
 import { useToast } from '../../context/ToastContext'
 import { LoadingSpinner } from '../../components/LoadingSpinner'
 import { generateSlug } from '../../utils/formatters'
+import { HOUSEHOLD_CATEGORIES } from '../../data/householdProducts'
 
-const CATEGORIES = [
-  'Wildflower',
-  'Raw Honey',
-  'Monofloral',
-  'Rare Reserve',
-  'Medical Grade',
-  'Infused Honey',
-  'Honeydew'
-]
+const CATEGORIES = HOUSEHOLD_CATEGORIES.filter(c => c !== 'All')
 
 export const ProductForm = () => {
   const { id } = useParams()
@@ -33,13 +26,13 @@ export const ProductForm = () => {
     description: '',
     price: '',
     compare_price: '',
-    weight: '500g',
-    category: 'Wildflower',
-    image_url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=800&q=80',
+    weight: 'Standard',
+    category: 'Kitchen & Dining',
+    image_url: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&w=800&q=80',
     stock: 50,
-    ingredients: '100% Pure Raw Honey.',
-    benefits: 'Rich in antioxidants, live digestive enzymes, and natural botanical terpenes.',
-    storage_instructions: 'Store at room temperature away from direct sunlight. Do not refrigerate.',
+    ingredients: 'High-grade stainless steel & food-safe materials.',
+    benefits: 'Durable build quality, ergonomic design, rust-resistant and easy to clean.',
+    storage_instructions: 'Clean with a soft damp cloth. Store in a dry place away from direct heat.',
     is_featured: false,
     is_active: true
   })
@@ -155,11 +148,11 @@ export const ProductForm = () => {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
-            {isEdit ? 'Edit Honey Product' : 'Add New Honey Variety'}
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
+            {isEdit ? 'Edit Product' : 'Add New Product'}
           </h1>
-          <p className="text-xs text-amberBrown-600">
-            Configure product metadata, pricing, batch weights, and storage guidelines.
+          <p className="text-xs text-slate-500">
+            Configure product metadata, pricing, inventory, and specifications.
           </p>
         </div>
       </div>
@@ -214,13 +207,13 @@ export const ProductForm = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Default Weight *</label>
+              <label className="block font-bold text-amberBrown-900">Default Variant / Size / Unit *</label>
               <input
                 type="text"
                 name="weight"
                 value={formData.weight}
                 onChange={handleChange}
-                placeholder="500g"
+                placeholder="e.g. Standard, Set of 6, 10-Inch, Queen"
                 className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:ring-2 focus:ring-honey-500 focus:outline-none"
               />
             </div>
@@ -233,7 +226,7 @@ export const ProductForm = () => {
                 required
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe floral origin, tasting notes, texture..."
+                placeholder="Describe product features, materials, dimensions, and everyday utility..."
                 className="w-full p-3 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:ring-2 focus:ring-honey-500 focus:outline-none"
               />
             </div>
@@ -318,7 +311,7 @@ export const ProductForm = () => {
             <div className="sm:col-span-8 space-y-3">
               <div>
                 <label className="block font-bold text-amberBrown-900 mb-1">
-                  Upload Jar Photo (Firebase Cloud Storage)
+                  Upload Product Photo (Firebase Cloud Storage)
                 </label>
                 <input
                   type="file"
@@ -327,7 +320,7 @@ export const ProductForm = () => {
                   className="w-full text-xs text-amberBrown-700 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-honey-100 file:text-amberBrown-950 hover:file:bg-honey-200 cursor-pointer"
                 />
                 <p className="text-[10px] text-amberBrown-400 mt-1">
-                  Stored securely in Firebase Cloud Storage under <code className="bg-cream-100 px-1 rounded">products/</code>.
+                  Stored securely in Cloud Storage under <code className="bg-cream-100 px-1 rounded">products/</code>.
                 </p>
               </div>
 
@@ -351,42 +344,45 @@ export const ProductForm = () => {
           </div>
         </div>
 
-        {/* Health, Ingredients & Storage */}
+        {/* Materials, Features & Care */}
         <div className="space-y-4">
           <h2 className="font-serif font-bold text-base text-amberBrown-950 pb-2 border-b border-honey-100">
-            Product Details & Guidelines
+            Materials, Specifications & Care
           </h2>
 
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Ingredients</label>
+              <label className="block font-bold text-amberBrown-900">Materials & Specifications</label>
               <input
                 type="text"
                 name="ingredients"
                 value={formData.ingredients}
                 onChange={handleChange}
+                placeholder="e.g. 304 Stainless Steel, BPA-free silicone, Oak wood"
                 className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Benefits</label>
+              <label className="block font-bold text-amberBrown-900">Key Features & Highlights</label>
               <textarea
                 rows={2}
                 name="benefits"
                 value={formData.benefits}
                 onChange={handleChange}
+                placeholder="e.g. Dishwasher safe, rust-resistant, ergonomic grip, induction compatible"
                 className="w-full p-3 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Storage Instructions</label>
+              <label className="block font-bold text-amberBrown-900">Care & Maintenance Instructions</label>
               <input
                 type="text"
                 name="storage_instructions"
                 value={formData.storage_instructions}
                 onChange={handleChange}
+                placeholder="e.g. Hand wash recommended. Wipe clean with soft damp cloth."
                 className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900"
               />
             </div>

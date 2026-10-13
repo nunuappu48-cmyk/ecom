@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 
-const LOCAL_ORDERS_KEY = 'fellas_honey_orders_store'
+const LOCAL_ORDERS_KEY = 'ecomcenter_orders_store'
 
 const isValidUUID = (id) => {
   return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
@@ -8,7 +8,7 @@ const isValidUUID = (id) => {
 
 const getLocalOrders = () => {
   try {
-    const raw = localStorage.getItem(LOCAL_ORDERS_KEY)
+    const raw = localStorage.getItem(LOCAL_ORDERS_KEY) || localStorage.getItem('fellas_honey_orders_store')
     return raw ? JSON.parse(raw) : []
   } catch {
     return []
@@ -27,7 +27,7 @@ const saveLocalOrder = (order) => {
 
 export const orderService = {
   async createOrder(orderPayload, items = []) {
-    const orderNumber = `FEL-${Math.floor(100000 + Math.random() * 900000)}`
+    const orderNumber = `ECM-${Math.floor(100000 + Math.random() * 900000)}`
     const sanitizedUserId = isValidUUID(orderPayload.user_id) ? orderPayload.user_id : null
 
     const dbOrder = {

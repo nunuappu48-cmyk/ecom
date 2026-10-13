@@ -30,23 +30,23 @@ export const AdminLayout = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-cream-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-amberBrown-900 text-cream-100 flex-shrink-0 border-r border-amberBrown-800 flex flex-col justify-between">
+      <aside className="w-full md:w-64 bg-slate-900 text-slate-200 flex-shrink-0 border-r border-slate-800 flex flex-col justify-between">
         <div>
           {/* Admin Brand Header */}
-          <div className="p-5 border-b border-amberBrown-800 flex items-center justify-between">
+          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
             <Link to="/admin" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center border border-honey-400 shadow-xs overflow-hidden">
-                <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 rounded-xl bg-blue-600 p-2 flex items-center justify-center shadow-xs overflow-hidden">
+                <img src="/logo.svg" alt="EcomCenter" className="w-full h-full object-contain filter brightness-0 invert" />
               </div>
               <div>
-                <span className="font-serif font-black text-lg text-honey-400 leading-none block">
-                  FELLAS <span className="text-honey-200 text-xs font-sans uppercase tracking-widest">ADMIN</span>
+                <span className="font-sans font-black text-lg text-white leading-none block">
+                  ECOM <span className="text-blue-400 text-xs font-sans uppercase tracking-widest">ADMIN</span>
                 </span>
-                <span className="text-[10px] text-natureGreen-400 font-bold uppercase tracking-wider">
-                  Beekeeper Portal
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
+                  Store Management
                 </span>
               </div>
             </Link>
@@ -63,8 +63,8 @@ export const AdminLayout = () => {
                   to={item.path}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
                     active
-                      ? 'bg-honey-500 text-amberBrown-950 shadow-honey-sm'
-                      : 'text-cream-200/80 hover:bg-amberBrown-800 hover:text-honey-300'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -76,10 +76,10 @@ export const AdminLayout = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-4 border-t border-amberBrown-800 space-y-2">
+        <div className="p-4 border-t border-slate-800 space-y-2">
           <Link
             to="/"
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-honey-300 hover:bg-amberBrown-800 rounded-xl transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 rounded-xl transition-colors"
           >
             <Store className="w-4 h-4" />
             <span>Return to Storefront</span>

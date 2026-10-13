@@ -35,7 +35,7 @@ import { AdminCryptoSettings } from './pages/admin/CryptoSettings'
 // Protected Admin Route Guard
 const ProtectedAdminRoute = ({ children }) => {
   const { user, isAdmin, loading } = useAuth()
-  if (loading) return <AppLoadingScreen text="Verifying Beekeeper Admin access..." />
+  if (loading) return <AppLoadingScreen text="Verifying Admin credentials..." />
   if (!user || !isAdmin) {
     return <Navigate to="/login" replace />
   }
@@ -45,7 +45,7 @@ const ProtectedAdminRoute = ({ children }) => {
 // Protected Customer Account Guard
 const ProtectedAccountRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  if (loading) return <AppLoadingScreen text="Loading your honey account..." />
+  if (loading) return <AppLoadingScreen text="Loading your customer account..." />
   if (!user) {
     return <Navigate to="/login" replace />
   }

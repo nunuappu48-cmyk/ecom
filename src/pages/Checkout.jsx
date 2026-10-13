@@ -734,8 +734,8 @@ export const Checkout = () => {
               )}
             </button>
 
-            <p className="text-[11px] text-center text-amberBrown-500 font-medium">
-              By placing your order, you agree to Fellas Honey terms of service and harvest delivery guarantee.
+            <p className="text-[11px] text-center text-slate-500 font-medium">
+              By placing your order, you agree to EcomCenter terms of service and delivery guarantee.
             </p>
 
           </div>

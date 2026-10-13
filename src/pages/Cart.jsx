@@ -34,22 +34,22 @@ export const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="py-16 sm:py-24 max-w-xl mx-auto px-4 text-center space-y-6">
-        <div className="w-24 h-24 rounded-3xl bg-honey-100 flex items-center justify-center text-5xl mx-auto shadow-inner">
-          🍯
+        <div className="w-24 h-24 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-inner">
+          <ShoppingBag className="w-12 h-12" />
         </div>
         <div className="space-y-2">
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
-            Your Honey Basket is Empty
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
+            Your Shopping Cart is Empty
           </h1>
-          <p className="text-xs sm:text-sm text-amberBrown-600 max-w-sm mx-auto">
-            Looks like you haven't added any raw artisanal honey to your basket yet.
+          <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto">
+            Looks like you haven't added any items to your shopping cart yet.
           </p>
         </div>
         <Link
           to="/products"
-          className="inline-flex items-center gap-2 px-8 py-3.5 bg-amber-gold-gradient hover:opacity-95 text-amberBrown-950 font-black text-sm rounded-2xl shadow-honey-md transition-all active:scale-95"
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-95"
         >
-          <span>Explore Honey Reserves</span>
+          <span>Explore All Products</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -61,11 +61,11 @@ export const Cart = () => {
       
       {/* Title */}
       <div>
-        <h1 className="font-serif font-black text-2xl sm:text-4xl text-amberBrown-950">
-          Shopping Basket
+        <h1 className="font-sans font-black text-2xl sm:text-4xl text-slate-900 tracking-tight">
+          Shopping Cart
         </h1>
-        <p className="text-xs sm:text-sm text-amberBrown-600 mt-1">
-          Review your selected artisanal honeys and proceed to secure checkout.
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          Review your selected items and proceed to secure encrypted checkout.
         </p>
       </div>
 

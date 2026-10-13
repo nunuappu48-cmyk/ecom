@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useToast } from './ToastContext'
 
 const CartContext = createContext(null)
-const LOCAL_CART_KEY = 'fellas_honey_cart_v1'
+const LOCAL_CART_KEY = 'ecomcenter_cart_v1'
 
 const FREE_SHIPPING_THRESHOLD = 499.0
 const STANDARD_DELIVERY_FEE = 49.0
@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
   const { addToast } = useToast()
   const [items, setItems] = useState(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_CART_KEY)
+      const saved = localStorage.getItem(LOCAL_CART_KEY) || localStorage.getItem('fellas_honey_cart_v1')
       return saved ? JSON.parse(saved) : []
     } catch (e) {
       return []
@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
   }, [items])
 
   const addToCart = (product, quantity = 1, selectedWeight = null) => {
-    const weight = selectedWeight || product.weight || '500g'
+    const weight = selectedWeight || product.weight || 'Standard'
     // Unique item key based on product ID + weight
     const cartItemId = `${product.id}-${weight}`
 
@@ -59,7 +59,7 @@ export const CartProvider = ({ children }) => {
       }
     })
 
-    addToast(`🍯 ${product.name} (${weight}) added to your cart!`, 'success')
+    addToast(`🛍️ ${product.name} added to your cart!`, 'success')
   }
 
   const updateQuantity = (cartItemId, newQuantity) => {
@@ -87,18 +87,18 @@ export const CartProvider = ({ children }) => {
 
   const applyCoupon = (code) => {
     const clean = code.trim().toUpperCase()
-    if (clean === 'HONEY10' || clean === 'FELLAS10') {
+    if (clean === 'ECOMCENTER10' || clean === 'ECOM10' || clean === 'SAVE10' || clean === 'HONEY10' || clean === 'FELLAS10') {
       setCouponCode(clean)
       setDiscountPercent(10)
       addToast('🎉 10% Discount Applied!', 'success')
       return { success: true, message: '10% discount applied successfully!' }
-    } else if (clean === 'SWEET20') {
+    } else if (clean === 'SAVE20' || clean === 'SWEET20' || clean === 'ECOM20') {
       setCouponCode(clean)
       setDiscountPercent(20)
-      addToast('🎉 20% VIP Honey Discount Applied!', 'success')
+      addToast('🎉 20% VIP Discount Applied!', 'success')
       return { success: true, message: '20% discount applied successfully!' }
     } else {
-      addToast('Invalid promo code. Try HONEY10', 'error')
+      addToast('Invalid promo code. Try ECOMCENTER10', 'error')
       return { success: false, message: 'Invalid promo code' }
     }
   }
