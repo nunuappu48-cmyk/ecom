@@ -27,7 +27,7 @@ export const Footer = () => {
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
-              Discover verified products at competitive prices. Fast delivery, secure payments, and hassle-free returns on every single order.
+              Discover verified products at competitive prices. Fast delivery, secure payments, and dedicated customer support on every single order.
             </p>
 
             {/* Certifications */}
@@ -36,7 +36,7 @@ export const Footer = () => {
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100% Secure Checkout
               </span>
               <span className="px-3 py-1 rounded-lg bg-slate-800 text-[11px] font-semibold text-slate-300 border border-slate-700 flex items-center gap-1.5">
-                <RotateCcw className="w-3.5 h-3.5 text-blue-400" /> 30-Day Returns
+                <Lock className="w-3.5 h-3.5 text-blue-400" /> Verified Authenticity
               </span>
             </div>
           </div>
@@ -58,9 +58,6 @@ export const Footer = () => {
               </li>
               <li>
                 <a href="#why-us" className="hover:text-blue-400 transition-colors">Why Choose Us</a>
-              </li>
-              <li>
-                <a href="#reviews" className="hover:text-blue-400 transition-colors">Customer Reviews</a>
               </li>
             </ul>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Truck, ShieldCheck, RotateCcw, Headphones, Sparkles, ArrowRight } from 'lucide-react'
+import { Truck, ShieldCheck, Headphones, Sparkles, ArrowRight } from 'lucide-react'
 
 export const Features = () => {
   const features = [
@@ -14,12 +14,6 @@ export const Features = () => {
       title: '100% Authentic Quality',
       description: 'Strict quality control on every item. Sourced directly from certified suppliers with complete authenticity guarantee.',
       highlight: 'Verified Products'
-    },
-    {
-      icon: <RotateCcw className="w-6 h-6 text-indigo-600" />,
-      title: 'Easy 30-Day Returns',
-      description: 'Shop with total confidence. Not completely thrilled with your order? Return it effortlessly with instant refund processing.',
-      highlight: 'Hassle-Free'
     },
     {
       icon: <Headphones className="w-6 h-6 text-blue-600" />,
@@ -47,8 +41,8 @@ export const Features = () => {
           </p>
         </div>
 
-        {/* 4 Feature Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* 3 Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {features.map((item, index) => (
             <div
               key={index}

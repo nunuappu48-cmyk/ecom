@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles, ShieldCheck, Truck, Award, ShoppingBag, Zap } from 'lucide-react'
+import { ArrowRight, Sparkles, ShieldCheck, Truck, Headphones, ShoppingBag, Zap } from 'lucide-react'
 
 export const Hero = () => {
   return (
@@ -33,7 +33,7 @@ export const Hero = () => {
 
             {/* Subtitle */}
             <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              Discover premium kitchenware, smart home appliances, organization essentials, and timeless decor. Guaranteed durability, fast shipping, and easy 30-day returns.
+              Discover premium kitchenware, smart home appliances, organization essentials, and timeless decor. Guaranteed durability, fast shipping.
             </p>
 
             {/* Mobile Quick Category Shortcut Chips */}
@@ -87,12 +87,12 @@ export const Hero = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0">
-                  <Award className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 flex-shrink-0">
+                  <Headphones className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-900 leading-tight">30-Day Return</p>
-                  <p className="text-[10px] text-slate-500">Money Guarantee</p>
+                  <p className="text-xs font-bold text-slate-900 leading-tight">24/7 Support</p>
+                  <p className="text-[10px] text-slate-500">Dedicated Care</p>
                 </div>
               </div>
             </div>
