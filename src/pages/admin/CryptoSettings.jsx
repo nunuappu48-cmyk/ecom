@@ -29,7 +29,7 @@ export const AdminCryptoSettings = () => {
     network: '',
     address: '',
     note: '',
-    iconColor: 'bg-honey-600 text-white'
+    iconColor: 'bg-blue-600 text-white'
   })
 
   const { addToast } = useToast()
@@ -94,7 +94,7 @@ export const AdminCryptoSettings = () => {
     setSaving(true)
     try {
       cryptoService.saveCryptoSettings(cryptoList)
-      addToast('✅ Cryptocurrency payment addresses & QR codes updated successfully!', 'success')
+      addToast('Cryptocurrency payment addresses & QR codes updated successfully!', 'success')
     } catch (err) {
       addToast('Failed to save crypto settings', 'error')
     } finally {
@@ -126,7 +126,7 @@ export const AdminCryptoSettings = () => {
       address: newCoin.address.trim(),
       qr_image: '',
       note: newCoin.note || 'Transfer to the above address',
-      iconColor: newCoin.iconColor || 'bg-amber-600 text-white',
+      iconColor: newCoin.iconColor || 'bg-blue-600 text-white',
       is_active: true
     }
 
@@ -134,7 +134,7 @@ export const AdminCryptoSettings = () => {
     setCryptoList(updated)
     cryptoService.saveCryptoSettings(updated)
     setNewCoinModal(false)
-    setNewCoin({ name: '', symbol: '', network: '', address: '', note: '', iconColor: 'bg-honey-600 text-white' })
+    setNewCoin({ name: '', symbol: '', network: '', address: '', note: '', iconColor: 'bg-blue-600 text-white' })
     addToast(`Added ${coinToAdd.name} to supported cryptocurrencies! 🪙`, 'success')
   }
 
@@ -154,15 +154,15 @@ export const AdminCryptoSettings = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 flex items-center gap-1 uppercase tracking-wider">
-              <Coins className="w-3 h-3 text-amber-700" />
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 flex items-center gap-1 uppercase tracking-wider">
+              <Coins className="w-3 h-3 text-blue-600" />
               Web3 Payment Gateway
             </span>
           </div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
+          <h1 className="font-sans font-black text-2xl sm:text-3xl text-slate-900">
             Cryptocurrency & QR Management
           </h1>
-          <p className="text-xs sm:text-sm text-amberBrown-600">
+          <p className="text-xs sm:text-sm text-slate-500">
             Configure deposit wallet addresses, custom QR codes, and networks displayed to customers during checkout.
           </p>
         </div>
@@ -171,7 +171,7 @@ export const AdminCryptoSettings = () => {
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="px-4 py-2.5 bg-cream-50 hover:bg-honey-100 border border-honey-300 text-amberBrown-800 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-2xs"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Defaults</span>
@@ -180,7 +180,7 @@ export const AdminCryptoSettings = () => {
           <button
             type="button"
             onClick={() => setNewCoinModal(true)}
-            className="px-4 py-2.5 bg-amberBrown-900 hover:bg-amberBrown-950 text-honey-200 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Coin</span>
@@ -202,28 +202,28 @@ export const AdminCryptoSettings = () => {
             return (
               <div
                 key={coin.id}
-                className={`bg-white rounded-3xl p-5 sm:p-7 border shadow-soft transition-all space-y-5 ${
+                className={`bg-white rounded-2xl p-5 sm:p-7 border transition-all space-y-5 ${
                   coin.is_active
-                    ? 'border-honey-300'
-                    : 'border-honey-100 opacity-60 bg-cream-50/50'
+                    ? 'border-slate-200 shadow-sm'
+                    : 'border-slate-200 opacity-60 bg-slate-50'
                 }`}
               >
                 {/* Coin Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-honey-100 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
                   <div className="flex items-center gap-3">
-                    <span className={`w-9 h-9 rounded-2xl text-xs font-black flex items-center justify-center shadow-xs ${coin.iconColor}`}>
+                    <span className={`w-9 h-9 rounded-xl text-xs font-black flex items-center justify-center shadow-xs ${coin.iconColor || 'bg-blue-600 text-white'}`}>
                       {coin.symbol.slice(0, 3)}
                     </span>
                     <div>
-                      <h3 className="font-serif font-black text-lg text-amberBrown-950 flex items-center gap-2">
+                      <h3 className="font-sans font-bold text-lg text-slate-900 flex items-center gap-2">
                         {coin.name}
                         {!coin.is_active && (
-                          <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+                          <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
                             Disabled
                           </span>
                         )}
                       </h3>
-                      <p className="text-xs text-amberBrown-500 font-medium">
+                      <p className="text-xs text-slate-500 font-medium">
                         Network: <strong>{coin.network}</strong>
                       </p>
                     </div>
@@ -236,8 +236,8 @@ export const AdminCryptoSettings = () => {
                       onClick={() => handleToggleActive(coin.id)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         coin.is_active
-                          ? 'bg-natureGreen-100 text-natureGreen-800 border border-natureGreen-300'
-                          : 'bg-cream-100 text-amberBrown-600 border border-honey-200'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
@@ -266,9 +266,9 @@ export const AdminCryptoSettings = () => {
                     
                     {/* Deposit Address */}
                     <div className="space-y-1.5">
-                      <label className="font-bold text-amberBrown-900 block flex items-center justify-between">
+                      <label className="font-bold text-slate-700 block flex items-center justify-between">
                         <span>Wallet / Deposit Address *</span>
-                        <span className="text-[11px] text-amberBrown-500 font-normal">
+                        <span className="text-[11px] text-slate-400 font-normal">
                           Live auto-updates customer QR
                         </span>
                       </label>
@@ -279,16 +279,16 @@ export const AdminCryptoSettings = () => {
                           value={coin.address}
                           onChange={(e) => handleFieldChange(coin.id, 'address', e.target.value)}
                           placeholder="e.g. 0x... or Tron Address"
-                          className="w-full pl-3.5 pr-20 py-2.5 bg-cream-50 rounded-xl border border-honey-300 font-mono text-xs text-amberBrown-950 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                          className="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                         />
                         <button
                           type="button"
                           onClick={() => handleCopy(coin.id, coin.address)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-white hover:bg-honey-100 border border-honey-200 rounded-lg text-[11px] font-bold text-amberBrown-800 transition-colors flex items-center gap-1"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 transition-colors flex items-center gap-1 shadow-2xs"
                         >
                           {copiedId === coin.id ? (
                             <>
-                              <Check className="w-3 h-3 text-natureGreen-600" />
+                              <Check className="w-3 h-3 text-emerald-600" />
                               <span>Copied</span>
                             </>
                           ) : (
@@ -304,7 +304,7 @@ export const AdminCryptoSettings = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Network Name */}
                       <div className="space-y-1.5">
-                        <label className="font-bold text-amberBrown-900 block">
+                        <label className="font-bold text-slate-700 block">
                           Network Name
                         </label>
                         <input
@@ -312,13 +312,13 @@ export const AdminCryptoSettings = () => {
                           value={coin.network}
                           onChange={(e) => handleFieldChange(coin.id, 'network', e.target.value)}
                           placeholder="e.g. TRON (TRC-20), ERC-20"
-                          className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                         />
                       </div>
 
                       {/* Display Label / Coin Name */}
                       <div className="space-y-1.5">
-                        <label className="font-bold text-amberBrown-900 block">
+                        <label className="font-bold text-slate-700 block">
                           Coin Name / Display Label
                         </label>
                         <input
@@ -326,14 +326,14 @@ export const AdminCryptoSettings = () => {
                           value={coin.name}
                           onChange={(e) => handleFieldChange(coin.id, 'name', e.target.value)}
                           placeholder="e.g. USDT (TRC-20)"
-                          className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                         />
                       </div>
                     </div>
 
                     {/* Customer Instruction / Note */}
                     <div className="space-y-1.5">
-                      <label className="font-bold text-amberBrown-900 block">
+                      <label className="font-bold text-slate-700 block">
                         Customer Checkout Note / Guidance
                       </label>
                       <input
@@ -341,19 +341,19 @@ export const AdminCryptoSettings = () => {
                         value={coin.note}
                         onChange={(e) => handleFieldChange(coin.id, 'note', e.target.value)}
                         placeholder="e.g. Lowest transfer fee (~$1 TRON fee)"
-                        className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                       />
                     </div>
 
                   </div>
 
                   {/* Right: Live QR Preview & Custom QR Upload */}
-                  <div className="lg:col-span-4 bg-cream-50/70 p-4 rounded-2xl border border-honey-200 flex flex-col items-center justify-center text-center space-y-3">
-                    <span className="text-[11px] font-bold text-amberBrown-900 uppercase tracking-wider">
+                  <div className="lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center text-center space-y-3">
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                       Live Customer QR Code
                     </span>
 
-                    <div className="p-2.5 bg-white rounded-2xl border border-honey-300 shadow-honey-sm inline-block">
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs inline-block">
                       <img
                         src={qrSrc}
                         alt={`${coin.name} QR Code`}
@@ -362,7 +362,7 @@ export const AdminCryptoSettings = () => {
                     </div>
 
                     <div className="space-y-1 w-full">
-                      <p className="text-[10px] text-amberBrown-500 font-medium">
+                      <p className="text-[10px] text-slate-500 font-medium">
                         {coin.qr_image ? 'Custom QR uploaded' : 'Auto-generated from address'}
                       </p>
 
@@ -376,7 +376,7 @@ export const AdminCryptoSettings = () => {
                         />
                         <label
                           htmlFor={`qr-upload-${coin.id}`}
-                          className="px-2.5 py-1 bg-white hover:bg-honey-100 border border-honey-300 rounded-lg text-[11px] font-bold text-amberBrown-800 cursor-pointer transition-colors inline-flex items-center gap-1 shadow-2xs"
+                          className="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer transition-colors inline-flex items-center gap-1 shadow-2xs"
                         >
                           <UploadCloud className="w-3 h-3" />
                           <span>Upload Custom QR</span>
@@ -402,12 +402,12 @@ export const AdminCryptoSettings = () => {
         </div>
 
         {/* Floating / Bottom Save Bar */}
-        <div className="sticky bottom-6 bg-white/95 backdrop-blur-md p-4 rounded-3xl border border-honey-300 shadow-soft-lg flex items-center justify-between gap-4">
+        <div className="sticky bottom-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-lg flex items-center justify-between gap-4">
           <div>
-            <p className="font-serif font-black text-sm text-amberBrown-950">
+            <p className="font-sans font-bold text-sm text-slate-900">
               Save Crypto Payment Gateway Configurations
             </p>
-            <p className="text-xs text-amberBrown-600">
+            <p className="text-xs text-slate-500">
               Changes take effect immediately on customer checkout and mobile views.
             </p>
           </div>
@@ -415,10 +415,10 @@ export const AdminCryptoSettings = () => {
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-3.5 bg-amber-gold-gradient hover:opacity-95 text-amberBrown-950 font-black text-xs sm:text-sm rounded-2xl shadow-honey-md transition-all active:scale-95 disabled:opacity-75 flex items-center gap-2"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all active:scale-95 disabled:opacity-75 flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save All Addresses & QR Codes'}</span>
+            <span>{saving ? 'Saving...' : 'Save All Configurations'}</span>
           </button>
         </div>
 
@@ -426,16 +426,16 @@ export const AdminCryptoSettings = () => {
 
       {/* Add Custom Coin Modal */}
       {newCoinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-amberBrown-950/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-honey-300 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-honey-100">
-              <h3 className="font-serif font-bold text-lg text-amberBrown-950 flex items-center gap-2">
-                <Coins className="w-5 h-5 text-amber-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-sans font-bold text-lg text-slate-900 flex items-center gap-2">
+                <Coins className="w-5 h-5 text-blue-600" />
                 <span>Add Cryptocurrency</span>
               </h3>
               <button
                 onClick={() => setNewCoinModal(false)}
-                className="p-1 text-amberBrown-400 hover:text-amberBrown-800"
+                className="p-1 text-slate-400 hover:text-slate-700"
               >
                 ✕
               </button>
@@ -443,63 +443,63 @@ export const AdminCryptoSettings = () => {
 
             <form onSubmit={handleAddCustomCoin} className="space-y-4 text-xs sm:text-sm">
               <div className="space-y-1.5">
-                <label className="font-bold text-amberBrown-900 block">Coin Name *</label>
+                <label className="font-bold text-slate-700 block">Coin Name *</label>
                 <input
                   type="text"
                   required
                   value={newCoin.name}
                   onChange={(e) => setNewCoin(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. Polygon (MATIC) or Dogecoin"
-                  className="w-full px-3.5 py-2 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                  placeholder="e.g. Polygon (MATIC) or Solana"
+                  className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="font-bold text-amberBrown-900 block">Symbol *</label>
+                  <label className="font-bold text-slate-700 block">Symbol *</label>
                   <input
                     type="text"
                     required
                     value={newCoin.symbol}
                     onChange={(e) => setNewCoin(prev => ({ ...prev, symbol: e.target.value }))}
                     placeholder="e.g. MATIC"
-                    className="w-full px-3.5 py-2 bg-cream-50 rounded-xl border border-honey-300 uppercase text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 uppercase text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-amberBrown-900 block">Network *</label>
+                  <label className="font-bold text-slate-700 block">Network *</label>
                   <input
                     type="text"
                     required
                     value={newCoin.network}
                     onChange={(e) => setNewCoin(prev => ({ ...prev, network: e.target.value }))}
                     placeholder="e.g. Polygon PoS"
-                    className="w-full px-3.5 py-2 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-amberBrown-900 block">Deposit Wallet Address *</label>
+                <label className="font-bold text-slate-700 block">Deposit Wallet Address *</label>
                 <input
                   type="text"
                   required
                   value={newCoin.address}
                   onChange={(e) => setNewCoin(prev => ({ ...prev, address: e.target.value }))}
                   placeholder="0x..."
-                  className="w-full px-3.5 py-2 bg-cream-50 rounded-xl border border-honey-300 font-mono text-xs text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                  className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-amberBrown-900 block">Customer Guidance Note</label>
+                <label className="font-bold text-slate-700 block">Customer Guidance Note</label>
                 <input
                   type="text"
                   value={newCoin.note}
                   onChange={(e) => setNewCoin(prev => ({ ...prev, note: e.target.value }))}
                   placeholder="e.g. Fast polygon network confirmation"
-                  className="w-full px-3.5 py-2 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                  className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -507,13 +507,13 @@ export const AdminCryptoSettings = () => {
                 <button
                   type="button"
                   onClick={() => setNewCoinModal(false)}
-                  className="px-4 py-2 bg-cream-100 hover:bg-honey-100 text-amberBrown-800 text-xs font-bold rounded-xl"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-amber-gold-gradient text-amberBrown-950 text-xs font-black rounded-xl shadow-honey-sm"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs"
                 >
                   Add to Payment Options
                 </button>

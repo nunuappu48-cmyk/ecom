@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase'
+import { neonSql } from '../lib/neon'
 
 const LOCAL_ORDERS_KEY = 'ecomcenter_orders_store'
 
@@ -8,7 +8,7 @@ const isValidUUID = (id) => {
 
 const getLocalOrders = () => {
   try {
-    const raw = localStorage.getItem(LOCAL_ORDERS_KEY) || localStorage.getItem('fellas_honey_orders_store')
+    const raw = localStorage.getItem(LOCAL_ORDERS_KEY)
     return raw ? JSON.parse(raw) : []
   } catch {
     return []
@@ -45,98 +45,102 @@ export const orderService = {
       shipping_email: orderPayload.shipping_email,
       shipping_address: orderPayload.shipping_address,
       shipping_city: orderPayload.shipping_city,
-      shipping_country: orderPayload.shipping_country || 'India',
+      shipping_country: orderPayload.shipping_country || 'United States',
       shipping_postal_code: orderPayload.shipping_postal_code,
       delivery_notes: orderPayload.delivery_notes || '',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
 
-    try {
-      // 1. Insert order into Supabase
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert([dbOrder])
-        .select()
-        .single()
+    let createdOrder = null
 
-      if (orderError) {
-        console.warn('Supabase createOrder error, utilizing local order backup:', orderError)
-        throw orderError
-      }
+    if (neonSql) {
+      try {
+        const [inserted] = await neonSql`
+          INSERT INTO public.orders (
+            user_id, order_number, subtotal, delivery_fee, discount, total,
+            payment_method, payment_status, status, shipping_name, shipping_phone,
+            shipping_email, shipping_address, shipping_city, shipping_country,
+            shipping_postal_code, delivery_notes
+          ) VALUES (
+            ${dbOrder.user_id},
+            ${dbOrder.order_number},
+            ${dbOrder.subtotal},
+            ${dbOrder.delivery_fee},
+            ${dbOrder.discount},
+            ${dbOrder.total},
+            ${dbOrder.payment_method},
+            ${dbOrder.payment_status},
+            ${dbOrder.status},
+            ${dbOrder.shipping_name},
+            ${dbOrder.shipping_phone},
+            ${dbOrder.shipping_email},
+            ${dbOrder.shipping_address},
+            ${dbOrder.shipping_city},
+            ${dbOrder.shipping_country},
+            ${dbOrder.shipping_postal_code},
+            ${dbOrder.delivery_notes}
+          )
+          RETURNING *
+        `
 
-      // 2. Insert order items into Supabase
-      if (items && items.length > 0) {
-        const orderItemsToInsert = items.map(item => ({
-          order_id: orderData.id,
-          product_id: isValidUUID(item.product_id || item.id) ? (item.product_id || item.id) : null,
-          product_name: item.name,
-          product_image: item.image_url,
-          price: Number(item.price),
-          quantity: Number(item.quantity),
-          weight: item.weight || '500g',
-          subtotal: Number(item.price) * Number(item.quantity)
-        }))
-
-        const { error: itemsError } = await supabase
-          .from('order_items')
-          .insert(orderItemsToInsert)
-
-        if (itemsError) {
-          console.warn('Supabase createOrderItems warning:', itemsError)
+        if (inserted) {
+          createdOrder = inserted
+          // Insert order items
+          if (items && items.length > 0) {
+            for (const item of items) {
+              const pid = isValidUUID(item.product_id || item.id) ? (item.product_id || item.id) : null
+              await neonSql`
+                INSERT INTO public.order_items (
+                  order_id, product_id, product_name, product_image, price, quantity, weight, subtotal
+                ) VALUES (
+                  ${inserted.id},
+                  ${pid},
+                  ${item.name},
+                  ${item.image_url || null},
+                  ${Number(item.price)},
+                  ${Number(item.quantity)},
+                  ${item.weight || 'Standard'},
+                  ${Number(item.price) * Number(item.quantity)}
+                )
+              `
+            }
+          }
         }
+      } catch (neonErr) {
+        console.warn('Neon order creation error, using local backup:', neonErr.message)
       }
-
-      const completedOrder = {
-        ...orderData,
-        user_id: orderPayload.user_id || sanitizedUserId,
-        payment_proof: orderPayload.payment_proof || null,
-        transaction_id: orderPayload.transaction_id || null,
-        crypto_details: orderPayload.crypto_details || null,
-        items
-      }
-      saveLocalOrder(completedOrder)
-      return completedOrder
-    } catch (err) {
-      console.warn('Using offline/local fallback order creation due to database policy:', err.message)
-      const mockOrder = {
-        id: 'ord-' + Date.now(),
-        ...dbOrder,
-        user_id: orderPayload.user_id || sanitizedUserId,
-        payment_proof: orderPayload.payment_proof || null,
-        transaction_id: orderPayload.transaction_id || null,
-        crypto_details: orderPayload.crypto_details || null,
-        items
-      }
-      saveLocalOrder(mockOrder)
-      return mockOrder
     }
+
+    const completedOrder = {
+      id: createdOrder?.id || `ord-${Date.now()}`,
+      ...dbOrder,
+      user_id: orderPayload.user_id || sanitizedUserId,
+      payment_proof: orderPayload.payment_proof || null,
+      transaction_id: orderPayload.transaction_id || null,
+      crypto_details: orderPayload.crypto_details || null,
+      items
+    }
+
+    saveLocalOrder(completedOrder)
+    return completedOrder
   },
 
   async getOrderByNumber(orderNumber) {
-    try {
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_number', orderNumber)
-        .single()
-
-      if (!orderError && orderData) {
-        const { data: itemsData } = await supabase
-          .from('order_items')
-          .select('*')
-          .eq('order_id', orderData.id)
-
-        return { ...orderData, items: itemsData || [] }
+    if (neonSql) {
+      try {
+        const rows = await neonSql`SELECT * FROM public.orders WHERE order_number = ${orderNumber} LIMIT 1`
+        if (rows && rows.length > 0) {
+          const items = await neonSql`SELECT * FROM public.order_items WHERE order_id = ${rows[0].id}`
+          return { ...rows[0], items: items || [] }
+        }
+      } catch (err) {
+        console.warn('Neon getOrderByNumber warning:', err.message)
       }
-    } catch (err) {
-      console.warn('Supabase getOrderByNumber fallback to local orders:', err.message)
     }
 
-    // Fallback: search local orders
     const localOrders = getLocalOrders()
-    const found = localOrders.find(o => o.order_number === orderNumber)
-    return found || null
+    return localOrders.find(o => o.order_number === orderNumber) || null
   },
 
   async getUserOrders(userId, userEmail = '') {
@@ -144,40 +148,35 @@ export const orderService = {
     let dbOrders = []
     const cleanEmail = (userEmail || '').trim().toLowerCase()
 
-    try {
-      let query = supabase
-        .from('orders')
-        .select(`
-          *,
-          items:order_items(*)
-        `)
-        .order('created_at', { ascending: false })
+    if (neonSql) {
+      try {
+        let rows = []
+        if (isValidUUID(userId) && cleanEmail) {
+          rows = await neonSql`SELECT * FROM public.orders WHERE user_id = ${userId} OR LOWER(shipping_email) = ${cleanEmail} ORDER BY created_at DESC`
+        } else if (isValidUUID(userId)) {
+          rows = await neonSql`SELECT * FROM public.orders WHERE user_id = ${userId} ORDER BY created_at DESC`
+        } else if (cleanEmail) {
+          rows = await neonSql`SELECT * FROM public.orders WHERE LOWER(shipping_email) = ${cleanEmail} ORDER BY created_at DESC`
+        }
 
-      if (isValidUUID(userId) && cleanEmail) {
-        query = query.or(`user_id.eq.${userId},shipping_email.ilike.${cleanEmail}`)
-      } else if (isValidUUID(userId)) {
-        query = query.eq('user_id', userId)
-      } else if (cleanEmail) {
-        query = query.ilike('shipping_email', cleanEmail)
+        if (Array.isArray(rows) && rows.length > 0) {
+          for (let ord of rows) {
+            const itms = await neonSql`SELECT * FROM public.order_items WHERE order_id = ${ord.id}`
+            ord.items = itms || []
+          }
+          dbOrders = rows
+        }
+      } catch (err) {
+        console.warn('Neon getUserOrders error:', err.message)
       }
-
-      const { data, error } = await query
-
-      if (!error && data) {
-        dbOrders = data
-      }
-    } catch (err) {
-      console.warn('Supabase getUserOrders error:', err.message)
     }
 
-    // Strictly filter local orders ONLY for this exact user (by userId or matching email)
     const localOrders = getLocalOrders().filter(o => {
       const matchesUserId = userId && o.user_id && String(o.user_id) === String(userId)
       const matchesEmail = cleanEmail && o.shipping_email && o.shipping_email.trim().toLowerCase() === cleanEmail
       return Boolean(matchesUserId || matchesEmail)
     })
 
-    // Combine and deduplicate
     const all = [...dbOrders]
     for (const loc of localOrders) {
       if (!all.some(o => o.order_number === loc.order_number)) {
@@ -189,20 +188,19 @@ export const orderService = {
 
   async getAllOrdersAdmin() {
     let dbOrders = []
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          items:order_items(*)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (!error && data) {
-        dbOrders = data
+    if (neonSql) {
+      try {
+        const rows = await neonSql`SELECT * FROM public.orders ORDER BY created_at DESC`
+        if (Array.isArray(rows) && rows.length > 0) {
+          for (let ord of rows) {
+            const itms = await neonSql`SELECT * FROM public.order_items WHERE order_id = ${ord.id}`
+            ord.items = itms || []
+          }
+          dbOrders = rows
+        }
+      } catch (err) {
+        console.warn('Neon getAllOrdersAdmin error:', err.message)
       }
-    } catch (err) {
-      console.warn('Supabase getAllOrdersAdmin error:', err.message)
     }
 
     const localOrders = getLocalOrders()
@@ -216,27 +214,16 @@ export const orderService = {
   },
 
   async updateOrderStatus(orderId, status) {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .update({
-          status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', orderId)
-        .select()
-        .single()
-
-      if (!error && data) {
-        return data
+    if (neonSql) {
+      try {
+        await neonSql`UPDATE public.orders SET status = ${status}, updated_at = now() WHERE id::text = ${orderId} OR order_number = ${orderId}`
+      } catch (err) {
+        console.warn('Neon updateOrderStatus error:', err.message)
       }
-    } catch (err) {
-      console.warn('Supabase updateOrderStatus fallback:', err.message)
     }
 
-    // Update local order
     const localOrders = getLocalOrders()
-    const idx = localOrders.findIndex(o => o.id === orderId)
+    const idx = localOrders.findIndex(o => o.id === orderId || o.order_number === orderId)
     if (idx !== -1) {
       localOrders[idx].status = status
       localOrders[idx].updated_at = new Date().toISOString()

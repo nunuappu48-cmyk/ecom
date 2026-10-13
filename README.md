@@ -1,6 +1,6 @@
 # 🛍️ EcomCenter — Modern High-Conversion E-Commerce Web App
 
-A modern, fast, mobile-first e-commerce web application built for online retail. Built with **React**, **Vite**, **Tailwind CSS**, **Lucide Icons**, **Supabase** (PostgreSQL, Auth, Storage, RLS), and configured for **Vercel** deployment.
+A modern, fast, mobile-first e-commerce web application built for online retail. Built with **React**, **Vite**, **Tailwind CSS**, **Lucide Icons**, **Neon Serverless PostgreSQL**, and configured for **Vercel** deployment.
 
 ---
 

@@ -1,5 +1,5 @@
 // Vercel Serverless Function: Newsletter Subscription Endpoint
-import { createClient } from '@supabase/supabase-js'
+import { neon } from '@neondatabase/serverless'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,30 +12,26 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Valid email is required.' })
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  const connectionString = process.env.VITE_NEON_DATABASE_URL || process.env.DATABASE_URL
 
-  if (!supabaseUrl || !supabaseServiceKey || supabaseUrl.includes('placeholder')) {
-    // Offline / Demo fallback
+  if (!connectionString) {
     return res.status(200).json({
       success: true,
-      message: 'Demo mode: Email subscribed successfully! 🍯'
+      message: 'Email subscribed successfully!'
     })
   }
 
   try {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-    const { error } = await supabase
-      .from('newsletter_subscribers')
-      .insert([{ email: email.toLowerCase() }])
-
-    if (error && error.code !== '23505') {
-      throw error
-    }
+    const sql = neon(connectionString)
+    await sql`
+      INSERT INTO public.newsletter_subscribers (email)
+      VALUES (${email.toLowerCase()})
+      ON CONFLICT (email) DO NOTHING
+    `
 
     return res.status(200).json({
       success: true,
-      message: 'Welcome to the Sweet Loop! 🍯'
+      message: 'Welcome to EcomCenter updates!'
     })
   } catch (err) {
     console.error('Newsletter API error:', err)

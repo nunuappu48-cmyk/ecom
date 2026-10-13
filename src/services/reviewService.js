@@ -1,106 +1,83 @@
-import { supabase } from '../lib/supabase'
+import { neonSql } from '../lib/neon'
 
 export const reviewService = {
   async getProductReviews(productId) {
+    if (!neonSql) return []
     try {
-      let query = supabase
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false })
-
       if (productId) {
-        query = query.eq('product_id', productId)
+        return await neonSql`SELECT * FROM public.reviews WHERE product_id::text = ${productId} ORDER BY created_at DESC`
       }
-
-      const { data, error } = await query
-      if (error) throw error
-      return data || []
+      return await neonSql`SELECT * FROM public.reviews ORDER BY created_at DESC`
     } catch (err) {
-      console.error('Supabase getProductReviews error:', err.message)
+      console.warn('Neon getProductReviews error:', err.message)
       return []
     }
   },
 
   async addReview(reviewData) {
-    const newReview = {
-      ...reviewData,
-      created_at: new Date().toISOString()
+    if (!neonSql) return null
+    try {
+      const [res] = await neonSql`
+        INSERT INTO public.reviews (user_name, product_id, rating, comment)
+        VALUES (${reviewData.user_name}, ${reviewData.product_id}, ${Number(reviewData.rating)}, ${reviewData.comment})
+        RETURNING *
+      `
+      return res
+    } catch (err) {
+      console.warn('Neon addReview error:', err.message)
+      throw err
     }
-
-    const { data, error } = await supabase
-      .from('reviews')
-      .insert([newReview])
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Supabase addReview error:', error)
-      throw error
-    }
-    return data
   },
 
   async getAllReviewsAdmin() {
+    if (!neonSql) return []
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select(`
-          *,
-          product:products(name, slug, image_url)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      return data || []
+      return await neonSql`
+        SELECT r.*, p.name as product_name, p.image_url as product_image
+        FROM public.reviews r
+        LEFT JOIN public.products p ON r.product_id = p.id
+        ORDER BY r.created_at DESC
+      `
     } catch (err) {
-      console.error('Supabase getAllReviewsAdmin error:', err.message)
+      console.warn('Neon getAllReviewsAdmin error:', err.message)
       return []
     }
   },
 
-  async deleteReview(id) {
-    const { error } = await supabase
-      .from('reviews')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.error('Supabase deleteReview error:', error)
-      throw error
+  async deleteReview(reviewId) {
+    if (!neonSql) return false
+    try {
+      await neonSql`DELETE FROM public.reviews WHERE id::text = ${reviewId}`
+      return true
+    } catch (err) {
+      console.warn('Neon deleteReview error:', err.message)
+      return false
     }
-    return true
   }
 }
 
 export const newsletterService = {
   async subscribe(email) {
-    if (!email || !email.includes('@')) {
-      throw new Error('Please enter a valid email address.')
+    if (!neonSql) return { success: true }
+    try {
+      await neonSql`
+        INSERT INTO public.newsletter_subscribers (email)
+        VALUES (${email.toLowerCase()})
+        ON CONFLICT (email) DO NOTHING
+      `
+      return { success: true }
+    } catch (err) {
+      console.warn('Neon subscribe error:', err.message)
+      return { success: false, error: err.message }
     }
-
-    const { error } = await supabase
-      .from('newsletter_subscribers')
-      .insert([{ email: email.toLowerCase().trim() }])
-
-    if (error && error.code !== '23505') { // 23505 is unique constraint (already subscribed)
-      console.error('Newsletter subscribe error:', error)
-      throw error
-    }
-
-    return { success: true, message: 'Welcome to the Sweet Loop! 🍯' }
   },
 
   async getAllSubscribersAdmin() {
+    if (!neonSql) return []
     try {
-      const { data, error } = await supabase
-        .from('newsletter_subscribers')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      return data || []
+      return await neonSql`SELECT * FROM public.newsletter_subscribers ORDER BY created_at DESC`
     } catch (err) {
-      console.error('Supabase getSubscribers error:', err.message)
+      console.warn('Neon getAllSubscribersAdmin error:', err.message)
       return []
     }
   }

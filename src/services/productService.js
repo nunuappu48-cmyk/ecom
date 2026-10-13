@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase'
+import { neonSql } from '../lib/neon'
 import { uploadProductImageToFirebase, deleteProductImageFromFirebase } from '../lib/firebase'
 import { HOUSEHOLD_PRODUCTS } from '../data/householdProducts'
 
@@ -30,7 +30,7 @@ const saveLocalCustomProduct = (newProduct) => {
 
 const removeLocalCustomProduct = (id) => {
   try {
-    const items = getLocalCustomProducts().filter(p => p.id !== id)
+    const items = getLocalCustomProducts().filter(p => p.id !== id && p.slug !== id)
     localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items))
   } catch (err) {
     console.warn('Failed to remove product locally:', err)
@@ -39,7 +39,6 @@ const removeLocalCustomProduct = (id) => {
 
 const getAllHouseholdProducts = () => {
   const custom = getLocalCustomProducts()
-  // Merge custom over default by id or slug
   const map = new Map()
   HOUSEHOLD_PRODUCTS.forEach(p => map.set(p.id, p))
   custom.forEach(p => map.set(p.id, p))
@@ -49,112 +48,82 @@ const getAllHouseholdProducts = () => {
 export const productService = {
   async getProducts({ category, search, sortBy, isFeatured } = {}) {
     let prods = []
+    let neonQueried = false
 
-    try {
-      let query = supabase.from('products').select('*')
-
-      if (isFeatured) {
-        query = query.eq('is_featured', true)
-      }
-
-      if (category && category !== 'All') {
-        query = query.ilike('category', `%${category}%`)
-      }
-
-      if (search) {
-        query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%,ingredients.ilike.%${search}%`)
-      }
-
-      if (sortBy === 'price-asc') {
-        query = query.order('price', { ascending: true })
-      } else if (sortBy === 'price-desc') {
-        query = query.order('price', { ascending: false })
-      } else if (sortBy === 'rating') {
-        query = query.order('rating', { ascending: false })
-      } else {
-        query = query.order('created_at', { ascending: false })
-      }
-
-      const { data, error } = await query
-      if (!error && data && data.length > 0) {
-        // If data contains non-honey household items, use it
-        const isOldHoneyData = data.every(p => 
-          p.category?.toLowerCase().includes('honey') || 
-          p.name?.toLowerCase().includes('honey') || 
-          p.category === 'Wildflower' ||
-          p.category === 'Monofloral'
-        )
-        if (!isOldHoneyData) {
-          prods = data
+    // 1. Fetch from Neon Serverless Postgres
+    if (neonSql) {
+      try {
+        const rows = await neonSql`SELECT * FROM public.products WHERE is_active = true ORDER BY created_at DESC`
+        if (Array.isArray(rows)) {
+          prods = rows
+          neonQueried = true
         }
+      } catch (neonErr) {
+        console.warn('Neon query warning, falling back to local storage:', neonErr.message)
       }
-    } catch (err) {
-      console.warn('Supabase query issue, using local catalog:', err.message)
     }
 
-    // Fallback to rich Household Products catalog if Supabase returned old honey or is empty
-    if (!prods || prods.length === 0) {
-      let list = getAllHouseholdProducts()
-
-      if (isFeatured) {
-        list = list.filter(p => p.is_featured)
-      }
-
-      if (category && category !== 'All') {
-        list = list.filter(p => p.category?.toLowerCase().includes(category.toLowerCase()))
-      }
-
-      if (search) {
-        const q = search.toLowerCase()
-        list = list.filter(p => 
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category?.toLowerCase().includes(q) ||
-          p.ingredients?.toLowerCase().includes(q)
-        )
-      }
-
-      if (sortBy === 'price-asc') {
-        list.sort((a, b) => Number(a.price) - Number(b.price))
-      } else if (sortBy === 'price-desc') {
-        list.sort((a, b) => Number(b.price) - Number(a.price))
-      } else if (sortBy === 'rating') {
-        list.sort((a, b) => Number(b.rating) - Number(a.rating))
-      }
-
-      prods = list
+    // 2. Fallback to custom products only if Neon is offline or unconfigured
+    if (!neonQueried && (!prods || prods.length === 0)) {
+      prods = getAllHouseholdProducts()
     }
 
-    return prods
+    // Apply in-memory filters
+    let list = [...prods]
+    if (isFeatured) {
+      list = list.filter(p => p.is_featured)
+    }
+
+    if (category && category !== 'All') {
+      list = list.filter(p => p.category?.toLowerCase().includes(category.toLowerCase()))
+    }
+
+    if (search) {
+      const q = search.toLowerCase()
+      list = list.filter(p => 
+        p.name?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q) ||
+        p.category?.toLowerCase().includes(q) ||
+        p.ingredients?.toLowerCase().includes(q)
+      )
+    }
+
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => Number(a.price) - Number(b.price))
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => Number(b.price) - Number(a.price))
+    } else if (sortBy === 'rating') {
+      list.sort((a, b) => Number(b.rating) - Number(a.rating))
+    }
+
+    return list
   },
 
   async getProductBySlug(slug) {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', slug)
-        .single()
-
-      if (!error && data && !data.name?.toLowerCase().includes('honey')) {
-        return data
+    if (neonSql) {
+      try {
+        const rows = await neonSql`SELECT * FROM public.products WHERE slug = ${slug} OR id::text = ${slug} LIMIT 1`
+        if (rows && rows.length > 0) {
+          return rows[0]
+        }
+      } catch (err) {
+        console.warn('Neon slug fetch warning:', err.message)
       }
-    } catch (_) {}
+    }
 
-    // Fallback search in household catalog
     const all = getAllHouseholdProducts()
     return all.find(p => p.slug === slug || p.id === slug) || null
   },
 
   async createProduct(productData) {
     const slug = productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    const id = productData.id || `h-prod-${Date.now()}`
+    const id = productData.id || `p-${Date.now()}`
     const newProduct = {
       ...productData,
       id,
       slug,
       rating: productData.rating || 5.0,
-      reviews_count: productData.reviews_count || 1,
+      reviews_count: productData.reviews_count || 0,
       is_featured: Boolean(productData.is_featured),
       is_active: productData.is_active !== undefined ? productData.is_active : true,
       created_at: new Date().toISOString(),
@@ -164,16 +133,37 @@ export const productService = {
     // Save locally
     saveLocalCustomProduct(newProduct)
 
-    // Try Supabase insert
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([newProduct])
-        .select()
-        .single()
-      if (!error && data) return data
-    } catch (err) {
-      console.warn('Supabase createProduct fallback to local:', err.message)
+    // Insert into Neon
+    if (neonSql) {
+      try {
+        const [inserted] = await neonSql`
+          INSERT INTO public.products (
+            name, slug, description, price, compare_price, weight, category,
+            image_url, rating, stock, ingredients, benefits, storage_instructions,
+            is_featured, is_active
+          ) VALUES (
+            ${newProduct.name},
+            ${newProduct.slug},
+            ${newProduct.description || ''},
+            ${Number(newProduct.price)},
+            ${newProduct.compare_price ? Number(newProduct.compare_price) : null},
+            ${newProduct.weight || 'Standard'},
+            ${newProduct.category},
+            ${newProduct.image_url || null},
+            ${Number(newProduct.rating || 5.0)},
+            ${Number(newProduct.stock || 50)},
+            ${newProduct.ingredients || ''},
+            ${newProduct.benefits || ''},
+            ${newProduct.storage_instructions || ''},
+            ${Boolean(newProduct.is_featured)},
+            ${newProduct.is_active !== false}
+          )
+          RETURNING *
+        `
+        if (inserted) return inserted
+      } catch (neonErr) {
+        console.warn('Neon createProduct warning:', neonErr.message)
+      }
     }
 
     return newProduct
@@ -187,22 +177,35 @@ export const productService = {
 
     // Update locally
     const custom = getLocalCustomProducts()
-    const found = custom.find(p => p.id === id) || HOUSEHOLD_PRODUCTS.find(p => p.id === id)
+    const found = custom.find(p => p.id === id || p.slug === id) || HOUSEHOLD_PRODUCTS.find(p => p.id === id || p.slug === id)
     if (found) {
       saveLocalCustomProduct({ ...found, ...payload })
     }
 
-    // Try Supabase update
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .update(payload)
-        .eq('id', id)
-        .select()
-        .single()
-      if (!error && data) return data
-    } catch (err) {
-      console.warn('Supabase updateProduct fallback to local:', err.message)
+    // Update in Neon
+    if (neonSql) {
+      try {
+        if (payload.price !== undefined) {
+          await neonSql`UPDATE public.products SET price = ${Number(payload.price)}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+        if (payload.name !== undefined) {
+          await neonSql`UPDATE public.products SET name = ${payload.name}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+        if (payload.stock !== undefined) {
+          await neonSql`UPDATE public.products SET stock = ${Number(payload.stock)}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+        if (payload.description !== undefined) {
+          await neonSql`UPDATE public.products SET description = ${payload.description}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+        if (payload.category !== undefined) {
+          await neonSql`UPDATE public.products SET category = ${payload.category}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+        if (payload.image_url !== undefined) {
+          await neonSql`UPDATE public.products SET image_url = ${payload.image_url}, updated_at = now() WHERE id::text = ${id} OR slug = ${id}`
+        }
+      } catch (neonErr) {
+        console.warn('Neon updateProduct warning:', neonErr.message)
+      }
     }
 
     return { ...found, ...payload }
@@ -211,19 +214,13 @@ export const productService = {
   async deleteProduct(id) {
     removeLocalCustomProduct(id)
 
-    try {
-      const { data: prod } = await supabase
-        .from('products')
-        .select('image_url')
-        .eq('id', id)
-        .single()
-
-      if (prod?.image_url) {
-        await deleteProductImageFromFirebase(prod.image_url)
+    if (neonSql) {
+      try {
+        await neonSql`DELETE FROM public.products WHERE id::text = ${id} OR slug = ${id}`
+      } catch (neonErr) {
+        console.warn('Neon deleteProduct warning:', neonErr.message)
       }
-
-      await supabase.from('products').delete().eq('id', id)
-    } catch (_) {}
+    }
 
     return true
   },

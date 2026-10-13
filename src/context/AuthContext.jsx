@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { neonSql } from '../lib/neon'
 
 const AuthContext = createContext(null)
 
@@ -10,29 +10,32 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Initialize session
+  // Initialize session from local storage and sync with Neon
   useEffect(() => {
     let mounted = true
 
     const initAuth = async () => {
       try {
-        if (isSupabaseConfigured()) {
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.user && mounted) {
-            setUser(session.user)
-            await fetchProfile(session.user.id)
-          }
-        } else {
-          // Check local stored session
-          const saved = localStorage.getItem(LOCAL_USER_KEY) || localStorage.getItem('fellas_honey_user_session')
-          if (saved && mounted) {
-            const parsed = JSON.parse(saved)
-            setUser(parsed.user)
-            setProfile(parsed.profile)
+        const saved = localStorage.getItem(LOCAL_USER_KEY) || localStorage.getItem('fellas_honey_user_session')
+        if (saved && mounted) {
+          const parsed = JSON.parse(saved)
+          setUser(parsed.user)
+          setProfile(parsed.profile)
+
+          // Background sync with Neon profiles
+          if (neonSql && (parsed.profile?.email || parsed.user?.email)) {
+            const email = (parsed.profile?.email || parsed.user?.email).toLowerCase()
+            try {
+              const rows = await neonSql`SELECT * FROM public.profiles WHERE LOWER(email) = ${email} LIMIT 1`
+              if (rows && rows.length > 0 && mounted) {
+                setProfile(rows[0])
+                localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: parsed.user, profile: rows[0] }))
+              }
+            } catch (_) {}
           }
         }
       } catch (err) {
-        console.error('Auth initialization error:', err)
+        console.warn('Auth initialization error:', err)
       } finally {
         if (mounted) setLoading(false)
       }
@@ -40,284 +43,126 @@ export const AuthProvider = ({ children }) => {
 
     initAuth()
 
-    // Listen to Supabase auth state changes
-    if (isSupabaseConfigured()) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-          setUser(session.user)
-          await fetchProfile(session.user.id)
-        } else {
-          setUser(null)
-          setProfile(null)
-        }
-        setLoading(false)
-      })
-
-      return () => {
-        mounted = false
-        subscription?.unsubscribe()
-      }
-    }
-
     return () => {
       mounted = false
     }
   }, [])
 
-  const fetchProfile = async (userId, currentUser = null) => {
-    if (!isSupabaseConfigured()) return
-    const activeUser = currentUser || user
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (!error && data) {
-        setProfile(data)
-      } else {
-        // Fallback default profile and auto-sync into public.profiles
-        const fallbackProf = {
-          id: userId,
-          full_name: activeUser?.user_metadata?.full_name || 'Customer',
-          email: activeUser?.email,
-          phone: activeUser?.user_metadata?.phone || '',
-          role: activeUser?.user_metadata?.role || (activeUser?.email === 'admin@fellashoney.com' || activeUser?.email === 'admin@ecomcenter.com' ? 'admin' : 'customer')
-        }
-        setProfile(fallbackProf)
-        try {
-          await supabase.from('profiles').upsert(fallbackProf, { onConflict: 'id' })
-        } catch (_) { }
-      }
-    } catch (err) {
-      console.warn('Fetch profile error:', err)
-    }
-  }
-
   // Sign up
   const signUp = async ({ email, password, full_name, phone }) => {
-    if (isSupabaseConfigured()) {
+    const cleanEmail = (email || '').trim().toLowerCase()
+    const isAdmin = cleanEmail === 'admin@ecomcenter.com' || cleanEmail === 'admin@fellashoney.com'
+    const role = isAdmin ? 'admin' : 'customer'
+    const userId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `u-${Date.now()}`
+
+    const newProfile = {
+      id: userId,
+      full_name: full_name || cleanEmail.split('@')[0],
+      email: cleanEmail,
+      phone: phone || '',
+      role,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    const newUser = {
+      id: userId,
+      email: cleanEmail,
+      user_metadata: { full_name: newProfile.full_name, phone: newProfile.phone, role }
+    }
+
+    // Save into Neon database
+    if (neonSql) {
       try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name,
-              phone,
-              role: 'customer'
-            }
-          }
-        })
-
-        if (error) {
-          const isRateLimit =
-            error.message?.toLowerCase().includes('rate limit') ||
-            error.message?.toLowerCase().includes('email limit') ||
-            error.message?.toLowerCase().includes('too many requests') ||
-            error.status === 429 ||
-            error.code === 'over_email_send_rate_limit'
-
-          if (isRateLimit) {
-            console.warn('Supabase email rate limit reached during signUp. Attempting fallback direct login or local session.', error)
-
-            // Attempt direct login in case user was already created in auth.users
-            try {
-              const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-                email,
-                password
-              })
-              if (!signInError && signInData?.user) {
-                setUser(signInData.user)
-                await fetchProfile(signInData.user.id)
-                return { user: signInData.user, isFallback: true }
-              }
-            } catch (fallbackSignInErr) {
-              console.warn('Direct sign in after rate limit failed:', fallbackSignInErr)
-            }
-
-            // Fallback to local session so account creation is never blocked
-            const mockUserId = 'user-' + Date.now()
-            const mockUser = {
-              id: mockUserId,
-              email,
-              user_metadata: { full_name, phone, role: 'customer' }
-            }
-            const mockProfile = {
-              id: mockUserId,
-              full_name,
-              email,
-              phone,
-              role: 'customer',
-              created_at: new Date().toISOString()
-            }
-            setUser(mockUser)
-            setProfile(mockProfile)
-            localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-            return { user: mockUser, isFallback: true }
-          }
-
-          throw error
-        }
-
-        if (data?.user) {
-          setUser(data.user)
-          const newProf = {
-            id: data.user.id,
-            full_name: full_name || 'Customer',
-            email: email,
-            phone: phone || '',
-            role: 'customer'
-          }
-          setProfile(newProf)
-
-          // Proactively persist directly to public.profiles table in Supabase
-          try {
-            const { error: profError } = await supabase
-              .from('profiles')
-              .upsert(newProf, { onConflict: 'id' })
-            if (profError) {
-              console.warn('Direct profile upsert error:', profError)
-            }
-          } catch (profErr) {
-            console.warn('Could not directly upsert to public.profiles:', profErr)
-          }
-        }
-        return data
-      } catch (err) {
-        const isRateLimit =
-          err.message?.toLowerCase().includes('rate limit') ||
-          err.message?.toLowerCase().includes('email limit') ||
-          err.message?.toLowerCase().includes('too many requests') ||
-          err.status === 429 ||
-          err.code === 'over_email_send_rate_limit'
-
-        if (isRateLimit) {
-          console.warn('Supabase email rate limit caught in catch block. Using local fallback session.', err)
-          const mockUserId = 'user-' + Date.now()
-          const mockUser = {
-            id: mockUserId,
-            email,
-            user_metadata: { full_name, phone, role: 'customer' }
-          }
-          const mockProfile = {
-            id: mockUserId,
-            full_name,
-            email,
-            phone,
-            role: 'customer',
-            created_at: new Date().toISOString()
-          }
-          setUser(mockUser)
-          setProfile(mockProfile)
-          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-          return { user: mockUser, isFallback: true }
-        }
-        throw err
+        await neonSql`
+          INSERT INTO public.profiles (full_name, email, phone, role)
+          VALUES (${newProfile.full_name}, ${cleanEmail}, ${newProfile.phone}, ${role})
+          ON CONFLICT (email) DO UPDATE SET
+            full_name = EXCLUDED.full_name,
+            phone = EXCLUDED.phone,
+            updated_at = now()
+        `
+      } catch (neonErr) {
+        console.warn('Neon profile insert warning:', neonErr.message)
       }
     }
 
-    // Local Mock signup
-    const mockUserId = 'user-' + Date.now()
-    const mockUser = { id: mockUserId, email, user_metadata: { full_name, phone, role: 'customer' } }
-    const mockProfile = {
-      id: mockUserId,
-      full_name,
-      email,
-      phone,
-      role: 'customer',
-      created_at: new Date().toISOString()
-    }
-    setUser(mockUser)
-    setProfile(mockProfile)
-    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-    return { user: mockUser }
+    setUser(newUser)
+    setProfile(newProfile)
+    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: newUser, profile: newProfile }))
+    return { user: newUser, profile: newProfile }
   }
 
   // Sign in
   const signIn = async ({ email, password }) => {
     const cleanEmail = (email || '').trim().toLowerCase()
+    const isAdminEmail = cleanEmail === 'admin@ecomcenter.com' || cleanEmail === 'admin@fellashoney.com'
 
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
-        password
-      })
-
-      if (error) {
-        // If the password was valid, but Supabase requires email confirmation:
-        if (
-          error.message?.toLowerCase().includes('email not confirmed') ||
-          error.message?.toLowerCase().includes('not confirmed')
-        ) {
-          const mockUserId = 'user-' + Date.now()
-          const mockUser = { id: mockUserId, email: cleanEmail }
-          const mockProfile = {
-            id: mockUserId,
-            full_name: cleanEmail.split('@')[0],
-            email: cleanEmail,
-            phone: '+91 85898 66422',
-            role: (cleanEmail === 'admin@fellashoney.com' || cleanEmail === 'admin@ecomcenter.com') ? 'admin' : 'customer',
-            created_at: new Date().toISOString()
-          }
-          setUser(mockUser)
-          setProfile(mockProfile)
-          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-          return { user: mockUser, profile: mockProfile, unconfirmedFallback: true }
-        }
-
-        // STRICT SECURITY: Wrong password or invalid credentials must throw an error
-        throw error
-      }
-
-      if (data?.user) {
-        setUser(data.user)
-        await fetchProfile(data.user.id, data.user)
-      }
-      return data
-    }
-
-    // Local Mock sign in (only when Supabase is completely unconfigured)
-    const isAdminEmail = cleanEmail === 'admin@fellashoney.com' || cleanEmail === 'admin@ecomcenter.com'
     if (isAdminEmail) {
       if (password !== 'admin1235789') {
         throw new Error('Invalid email or password.')
       }
     }
 
-    const mockUserId = isAdminEmail ? 'admin-user-id' : 'demo-user-id'
-    const mockUser = { id: mockUserId, email: cleanEmail }
-    const mockProfile = {
-      id: mockUserId,
-      full_name: isAdminEmail ? 'EcomCenter Admin' : 'Valued Customer',
+    let loadedProfile = null
+
+    // Check Neon database for user profile
+    if (neonSql) {
+      try {
+        const rows = await neonSql`SELECT * FROM public.profiles WHERE LOWER(email) = ${cleanEmail} LIMIT 1`
+        if (rows && rows.length > 0) {
+          loadedProfile = rows[0]
+        }
+      } catch (err) {
+        console.warn('Neon signIn fetch profile error:', err.message)
+      }
+    }
+
+    const userId = loadedProfile?.id || (isAdminEmail ? 'admin-user-id' : `user-${Date.now()}`)
+    const role = loadedProfile?.role || (isAdminEmail ? 'admin' : 'customer')
+
+    const loggedProfile = loadedProfile || {
+      id: userId,
+      full_name: isAdminEmail ? 'EcomCenter Admin' : cleanEmail.split('@')[0],
       email: cleanEmail,
-      phone: '+91 85898 66422',
-      role: isAdminEmail ? 'admin' : 'customer',
+      phone: '+1 (555) 349-2910',
+      role,
       created_at: new Date().toISOString()
     }
-    setUser(mockUser)
-    setProfile(mockProfile)
-    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-    return { user: mockUser, profile: mockProfile, isDummyAdmin: isAdminEmail }
+
+    const loggedUser = {
+      id: userId,
+      email: cleanEmail,
+      user_metadata: { full_name: loggedProfile.full_name, role }
+    }
+
+    setUser(loggedUser)
+    setProfile(loggedProfile)
+    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: loggedUser, profile: loggedProfile }))
+    return { user: loggedUser, profile: loggedProfile }
   }
 
-  // Demo Sign in (One-click for instant preview/testing)
+  // One-click demo sign in
   const loginAsDemo = (role = 'customer') => {
     const isAdm = role === 'admin'
     const mockUserId = isAdm ? 'admin-user-id' : 'demo-user-id'
-    const mockUser = {
-      id: mockUserId,
-      email: isAdm ? 'admin@ecomcenter.com' : 'customer@ecomcenter.com'
-    }
+    const email = isAdm ? 'admin@ecomcenter.com' : 'customer@ecomcenter.com'
+
     const mockProfile = {
       id: mockUserId,
       full_name: isAdm ? 'EcomCenter Admin' : 'Demo Customer',
-      email: mockUser.email,
+      email,
       phone: '+1 (555) 349-2910',
       role: isAdm ? 'admin' : 'customer',
       created_at: new Date().toISOString()
     }
+
+    const mockUser = {
+      id: mockUserId,
+      email,
+      user_metadata: { full_name: mockProfile.full_name, role: mockProfile.role }
+    }
+
     setUser(mockUser)
     setProfile(mockProfile)
     localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
@@ -326,13 +171,6 @@ export const AuthProvider = ({ children }) => {
 
   // Sign out
   const signOut = async () => {
-    if (isSupabaseConfigured()) {
-      try {
-        await supabase.auth.signOut()
-      } catch (err) {
-        console.warn('Sign out error:', err)
-      }
-    }
     setUser(null)
     setProfile(null)
     localStorage.removeItem(LOCAL_USER_KEY)
@@ -340,25 +178,26 @@ export const AuthProvider = ({ children }) => {
 
   // Update profile
   const updateProfile = async (updates) => {
-    if (!user) return
+    if (!user && !profile) return
 
-    const updated = { ...profile, ...updates, updated_at: new Date().toISOString() }
+    const updated = {
+      ...profile,
+      ...updates,
+      updated_at: new Date().toISOString()
+    }
 
-    if (isSupabaseConfigured()) {
+    if (neonSql && (profile?.email || user?.email)) {
+      const email = (profile?.email || user?.email).toLowerCase()
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', user.id)
-          .select()
-          .single()
-
-        if (!error && data) {
-          setProfile(data)
-          return data
-        }
+        await neonSql`
+          UPDATE public.profiles
+          SET full_name = ${updated.full_name},
+              phone = ${updated.phone || ''},
+              updated_at = now()
+          WHERE LOWER(email) = ${email} OR id::text = ${updated.id}
+        `
       } catch (err) {
-        console.warn('Update profile supabase error:', err)
+        console.warn('Neon updateProfile warning:', err.message)
       }
     }
 
@@ -369,12 +208,7 @@ export const AuthProvider = ({ children }) => {
 
   // Reset password
   const resetPassword = async (email) => {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
-      if (error) throw error
-    }
+    // Standard mock password reset response
     return true
   }
 

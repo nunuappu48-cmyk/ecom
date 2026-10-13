@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { HoneycombPattern } from '../components/HoneyDecoration'
 
 export const Login = () => {
   const [email, setEmail] = useState('')
@@ -11,7 +10,7 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const { signIn } = useAuth()
+  const { signIn, loginAsDemo } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -32,22 +31,25 @@ export const Login = () => {
       if (isAdminUser) {
         addToast('Signed in as EcomCenter Administrator! 🚀', 'success')
         navigate('/admin')
-      } else if (res?.unconfirmedFallback) {
-        addToast('Signed in successfully! 🛍️', 'success')
-        navigate(redirectPath)
       } else {
         addToast('Welcome back to EcomCenter! 🛍️', 'success')
         navigate(redirectPath)
       }
     } catch (err) {
       const msg = err?.message || 'Failed to sign in. Please check your credentials.'
-      if (msg.toLowerCase().includes('invalid login credentials')) {
-        addToast('Invalid email or password. Please verify your credentials and try again.', 'error')
-      } else {
-        addToast(msg, 'error')
-      }
+      addToast(msg, 'error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleQuickAdminLogin = () => {
+    try {
+      loginAsDemo('admin')
+      addToast('Logged in as Administrator! 🚀', 'success')
+      navigate('/admin')
+    } catch (err) {
+      addToast('Quick login failed', 'error')
     }
   }
 
@@ -64,60 +66,81 @@ export const Login = () => {
             Welcome Back
           </h1>
           <p className="text-xs text-slate-500">
-            Sign in to track orders, manage your profile, and access exclusive member deals.
+            Sign in to track orders, manage products, and access your account.
           </p>
+        </div>
+
+        {/* 1-Click Admin Quick Login Badge */}
+        <div className="p-3.5 bg-blue-50/80 rounded-2xl border border-blue-200/80 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-900">Admin Credentials</p>
+              <p className="text-[11px] text-slate-500">admin@ecomcenter.com / admin1235789</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleQuickAdminLogin}
+            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold shadow-xs transition-colors flex items-center gap-1"
+          >
+            <span>Quick Login</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-amberBrown-900">
+            <label className="block text-xs font-bold text-slate-700">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                placeholder="admin@ecomcenter.com"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-amberBrown-900">
+              <label className="text-xs font-bold text-slate-700">
                 Password
               </label>
               <Link
                 to="/forgot-password"
-                className="text-[11px] font-bold text-honey-700 hover:text-amberBrown-900"
+                className="text-[11px] font-bold text-blue-600 hover:text-blue-800"
               >
                 Forgot?
               </Link>
             </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                placeholder="admin1235789"
+                className="w-full pl-10 pr-11 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-amberBrown-400 hover:text-amberBrown-700 p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-honey-400 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-4 h-4 text-amberBrown-700" />
+                  <EyeOff className="w-4 h-4 text-slate-600" />
                 ) : (
                   <Eye className="w-4 h-4" />
                 )}
@@ -128,16 +151,16 @@ export const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-amber-gold-gradient hover:opacity-95 text-amberBrown-950 font-black text-xs sm:text-sm rounded-2xl shadow-honey-md transition-all active:scale-95 disabled:opacity-75 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-75 flex items-center justify-center gap-2"
           >
-            {loading ? 'Signing In...' : 'Sign In to Account'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
         {/* Footer Link */}
-        <div className="text-center text-xs text-amberBrown-600 relative z-10">
+        <div className="text-center text-xs text-slate-500 relative z-10">
           Don't have an account yet?{' '}
-          <Link to="/register" className="font-bold text-honey-700 hover:underline">
+          <Link to="/register" className="font-bold text-blue-600 hover:underline">
             Register now
           </Link>
         </div>
